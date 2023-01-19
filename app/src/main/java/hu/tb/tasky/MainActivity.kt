@@ -19,12 +19,23 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import hu.tb.tasky.model.Task
+import hu.tb.tasky.ui.TaskItemContainer
 import hu.tb.tasky.ui.theme.TaskyTheme
+import java.util.*
 
 class MainActivity : ComponentActivity() {
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val taskList = listOf<Task>(Task(
+            title = "Test",
+            description = "Something more about the task...",
+            expireDate = Calendar.getInstance(),
+            isDone = false,
+        ),)
+
         setContent {
             TaskyTheme {
                 Scaffold(
@@ -63,9 +74,9 @@ class MainActivity : ComponentActivity() {
                         }
                     }
                 ) { contentPadding ->
-                    LazyColumn{
-                        items(taskList){ taskItem ->
-                            TaskItemContainer(taskItem)
+                    LazyColumn(Modifier.padding(top = contentPadding.calculateTopPadding())){
+                        items(taskList.size){ index ->
+                            TaskItemContainer(taskList[index])
                         }
                     }
                     Box(modifier = Modifier.padding(top = contentPadding.calculateTopPadding())) {
