@@ -5,6 +5,6 @@ import java.util.*
 data class Task(
     val title: String,
     val description: String,
-    val expireDate: Calendar,
+    val expireDate: String,
     val isDone: Boolean,
 )
