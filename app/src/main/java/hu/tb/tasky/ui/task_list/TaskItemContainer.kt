@@ -1,26 +1,28 @@
-package hu.tb.tasky.ui
+package hu.tb.tasky.ui.task_list
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import hu.tb.tasky.model.Task
-import java.text.SimpleDateFormat
-import java.util.*
+import org.threeten.bp.Instant.now
+import org.threeten.bp.ZoneId
+import org.threeten.bp.ZonedDateTime
 
 @Composable
 fun TaskItemContainer(taskItem: Task, onCheckedChange: (Boolean) -> Unit) {
 
-    //todo give solution about time
-    val parser = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-    val formatter = SimpleDateFormat("dd.MM.yyyy HH:mm", Locale.getDefault())
-    val output: String = formatter.format(parser.parse(taskItem.expireDate))
+    val formattedDate = " ${
+        if (taskItem.expireDate.monthValue < 10) {
+            "0" + taskItem.expireDate.monthValue
+        } else {
+            taskItem.expireDate.monthValue
+        }
+    }. ${taskItem.expireDate.dayOfMonth}. ${taskItem.expireDate.hour}:${taskItem.expireDate.minute}"
 
     Card(
         modifier = Modifier
@@ -28,7 +30,7 @@ fun TaskItemContainer(taskItem: Task, onCheckedChange: (Boolean) -> Unit) {
             .height(150.dp),
         border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outline)
     ) {
-        Row(Modifier.padding(16.dp)) {
+        Row(Modifier.padding(14.dp)) {
             Column(
                 Modifier
                     .weight(1f),
@@ -45,12 +47,19 @@ fun TaskItemContainer(taskItem: Task, onCheckedChange: (Boolean) -> Unit) {
                 )
             }
             Column(
-                Modifier.weight(1f),
+                Modifier
+                    .weight(1f)
+                    .fillMaxSize(),
                 horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Checkbox(checked = taskItem.isDone, onCheckedChange = onCheckedChange)
+                Checkbox(
+                    checked = taskItem.isDone,
+                    onCheckedChange = onCheckedChange,
+                    modifier = Modifier.padding(0.dp)
+                )
                 Text(
-                    text = output,
+                    text = "Expire: $formattedDate",
                 )
             }
         }
@@ -63,9 +72,8 @@ fun TaskItemContainerPreview() {
     val testTask = Task(
         title = "Test",
         description = "Something more about the task...",
-        expireDate = "",
+        expireDate = ZonedDateTime.ofInstant(now(), ZoneId.systemDefault()),
         isDone = false,
     )
-    val isChecked = remember { mutableStateOf(false) }
     TaskItemContainer(taskItem = testTask, onCheckedChange = {})
 }

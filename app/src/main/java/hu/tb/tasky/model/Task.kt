@@ -1,10 +1,10 @@
 package hu.tb.tasky.model
 
-import java.util.*
+import org.threeten.bp.ZonedDateTime
 
 data class Task(
     val title: String,
     val description: String,
-    val expireDate: String,
+    val expireDate: ZonedDateTime,
     val isDone: Boolean,
 )
