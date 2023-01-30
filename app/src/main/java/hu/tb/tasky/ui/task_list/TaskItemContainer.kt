@@ -9,8 +9,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import hu.tb.tasky.model.Task
-import org.threeten.bp.Instant.now
-import org.threeten.bp.ZoneId
 import org.threeten.bp.ZonedDateTime
 
 @Composable
@@ -72,7 +70,7 @@ fun TaskItemContainerPreview() {
     val testTask = Task(
         title = "Test",
         description = "Something more about the task...",
-        expireDate = ZonedDateTime.ofInstant(now(), ZoneId.systemDefault()),
+        expireDate = ZonedDateTime.parse("2022-01-01T12:00:00Z"),
         isDone = false,
     )
     TaskItemContainer(taskItem = testTask, onCheckedChange = {})
