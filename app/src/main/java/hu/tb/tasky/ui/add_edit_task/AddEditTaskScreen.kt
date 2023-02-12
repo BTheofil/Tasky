@@ -8,7 +8,7 @@ import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,6 +28,8 @@ fun AddEditTaskScreen(
     taskItem: Task?,
     viewModel: AddEditTaskViewModel = viewModel()
 ) {
+    val form by remember { mutableStateOf(viewModel.form) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -72,7 +74,9 @@ fun AddEditTaskScreen(
                     ) {
                         BasicTextField(
                             value = "",
-                            onValueChange = {},
+                            onValueChange = {
+
+                            },
                             //todo hint
                         )
                         Divider(
@@ -87,10 +91,10 @@ fun AddEditTaskScreen(
                         )
                     }
                 }
-
+                Spacer(modifier = Modifier.padding(top = 16.dp))
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
                         painter = painterResource(R.drawable.outline_schedule_24),
@@ -108,13 +112,17 @@ fun AddEditTaskScreen(
                     .padding(bottom = 32.dp),
                 horizontalArrangement = Arrangement.SpaceAround,
             ) {
-                Button(
-                    onClick = {}
+                OutlinedButton(
+                    onClick = {
+                        navController.popBackStack()
+                    }
                 ) {
                     Text(text = "Cancel")
                 }
                 Button(
-                    onClick = {}
+                    onClick = {
+                        navController.popBackStack()
+                    }
                 ) {
                     Text(text = "Save")
                 }
