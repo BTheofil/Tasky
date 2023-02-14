@@ -53,26 +53,13 @@ fun AddEditTaskScreen(
                 .fillMaxSize(),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-
             AddEditForm(
                 TitleValue = viewModel.task.value.title,
                 OnTitleChange = { viewModel.onEvent(AddEditTaskEvent.OnTitleChange(it)) },
                 DescriptionValue = viewModel.task.value.description,
-                OnDescriptionChange = { viewModel.onEvent(AddEditTaskEvent.OnDescriptionChange(it)) })
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 32.dp),
-                horizontalArrangement = Arrangement.SpaceAround,
-            ) {
-                Button(onClick = {}) {
-                    Text(text = "Cancel")
-                }
-                Button(onClick = {}) {
-                    Text(text = "Save")
-                }
-            }
-
+                OnDescriptionChange = { viewModel.onEvent(AddEditTaskEvent.OnDescriptionChange(it)) }
+            )
+            Buttons()
         }
     }
 }
@@ -99,21 +86,40 @@ fun AddEditForm(
                 BasicTextField(
                     value = TitleValue,
                     onValueChange = OnTitleChange,
-                    //todo hint
+                    decorationBox = { innerTextField ->
+                        if (TitleValue.isEmpty()) {
+                            Text(
+                                text = "Title",
+                                color = Color.LightGray
+                            )
+                        }
+                        innerTextField()
+                    }
                 )
                 Divider(
-                    modifier = Modifier.fillMaxWidth(), thickness = 1.dp, color = Color.Black
+                    modifier = Modifier.fillMaxWidth(),
+                    thickness = 1.dp,
+                    color = Color.Black
                 )
                 BasicTextField(
                     value = DescriptionValue,
                     onValueChange = OnDescriptionChange,
-                    //todo hint
+                    decorationBox = { innerTextField ->
+                        if (TitleValue.isEmpty()) {
+                            Text(
+                                text = "Description",
+                                color = Color.LightGray
+                            )
+                        }
+                        innerTextField()
+                    }
                 )
             }
         }
-
+        Spacer(modifier = Modifier.padding(top = 16.dp))
         Row(
-            modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier
+                .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 painter = painterResource(R.drawable.outline_schedule_24),
@@ -122,6 +128,23 @@ fun AddEditForm(
             Spacer(modifier = Modifier.padding(horizontal = 8.dp))
             Text(text = "Task expire")
             //todo date picker
+        }
+    }
+}
+
+@Composable
+fun Buttons() {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 32.dp),
+        horizontalArrangement = Arrangement.SpaceAround,
+    ) {
+        Button(onClick = {}) {
+            Text(text = "Cancel")
+        }
+        Button(onClick = {}) {
+            Text(text = "Save")
         }
     }
 }
