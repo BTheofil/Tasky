@@ -24,9 +24,7 @@ import hu.tb.tasky.model.Task
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditTaskScreen(
-    navController: NavController,
-    taskItem: Task?,
-    viewModel: AddEditTaskViewModel = viewModel()
+    navController: NavController, taskItem: Task?, viewModel: AddEditTaskViewModel = viewModel()
 ) {
     Scaffold(
         topBar = {
@@ -41,8 +39,7 @@ fun AddEditTaskScreen(
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
-                            imageVector = Icons.Filled.ArrowBack,
-                            contentDescription = "Back Arrow"
+                            imageVector = Icons.Filled.ArrowBack, contentDescription = "Back Arrow"
                         )
                     }
                 },
@@ -57,68 +54,74 @@ fun AddEditTaskScreen(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
 
-            Column() {
-                Box(
-                    modifier = Modifier
-                        .border(
-                            BorderStroke(1.dp, Color.Black),
-                            shape = RoundedCornerShape(16.dp)
-                        )
-                        .fillMaxWidth()
-                        .height(150.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        BasicTextField(
-                            value = "",
-                            onValueChange = {},
-                            //todo hint
-                        )
-                        Divider(
-                            modifier = Modifier.fillMaxWidth(),
-                            thickness = 1.dp,
-                            color = Color.Black
-                        )
-                        BasicTextField(
-                            value = "",
-                            onValueChange = {},
-                            //todo hint
-                        )
-                    }
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        painter = painterResource(R.drawable.outline_schedule_24),
-                        contentDescription = "Expire icon"
-                    )
-                    Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-                    Text(text = "Task expire")
-                    //todo date picker
-                }
-            }
-
+            AddEditForm(
+                TitleValue = viewModel.task.value.title,
+                OnTitleChange = { viewModel.onEvent(AddEditTaskEvent.OnTitleChange(it)) },
+                DescriptionValue = viewModel.task.value.description,
+                OnDescriptionChange = { viewModel.onEvent(AddEditTaskEvent.OnDescriptionChange(it)) })
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 32.dp),
                 horizontalArrangement = Arrangement.SpaceAround,
             ) {
-                Button(
-                    onClick = {}
-                ) {
+                Button(onClick = {}) {
                     Text(text = "Cancel")
                 }
-                Button(
-                    onClick = {}
-                ) {
+                Button(onClick = {}) {
                     Text(text = "Save")
                 }
             }
+
+        }
+    }
+}
+
+@Composable
+fun AddEditForm(
+    TitleValue: String,
+    OnTitleChange: (String) -> Unit,
+    DescriptionValue: String,
+    OnDescriptionChange: (String) -> Unit
+) {
+    Column() {
+        Box(
+            modifier = Modifier
+                .border(
+                    BorderStroke(1.dp, Color.Black), shape = RoundedCornerShape(16.dp)
+                )
+                .fillMaxWidth()
+                .height(150.dp)
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp)
+            ) {
+                BasicTextField(
+                    value = TitleValue,
+                    onValueChange = OnTitleChange,
+                    //todo hint
+                )
+                Divider(
+                    modifier = Modifier.fillMaxWidth(), thickness = 1.dp, color = Color.Black
+                )
+                BasicTextField(
+                    value = DescriptionValue,
+                    onValueChange = OnDescriptionChange,
+                    //todo hint
+                )
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                painter = painterResource(R.drawable.outline_schedule_24),
+                contentDescription = "Expire icon"
+            )
+            Spacer(modifier = Modifier.padding(horizontal = 8.dp))
+            Text(text = "Task expire")
+            //todo date picker
         }
     }
 }
