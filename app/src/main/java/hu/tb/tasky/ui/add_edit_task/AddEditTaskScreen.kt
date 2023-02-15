@@ -71,7 +71,7 @@ fun AddEditForm(
     DescriptionValue: String,
     OnDescriptionChange: (String) -> Unit
 ) {
-    Column() {
+    Column {
         Box(
             modifier = Modifier
                 .border(
