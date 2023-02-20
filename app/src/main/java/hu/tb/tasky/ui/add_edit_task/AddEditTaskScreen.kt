@@ -2,6 +2,7 @@ package hu.tb.tasky.ui.add_edit_task
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -18,15 +19,19 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.vanpra.composematerialdialogs.MaterialDialog
+import com.vanpra.composematerialdialogs.datetime.date.datepicker
+import com.vanpra.composematerialdialogs.datetime.time.timepicker
+import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import hu.tb.tasky.R
 import hu.tb.tasky.model.Task
+import org.threeten.bp.LocalDate
+import org.threeten.bp.LocalTime
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditTaskScreen(
-    navController: NavController,
-    taskItem: Task?,
-    viewModel: AddEditTaskViewModel = viewModel()
+    navController: NavController, taskItem: Task?, viewModel: AddEditTaskViewModel = viewModel()
 ) {
     Scaffold(
         topBar = { TopBar(taskItem, navController) },
@@ -41,8 +46,12 @@ fun AddEditTaskScreen(
             AddEditForm(
                 TitleValue = taskItem?.title ?: viewModel.task.value.title,
                 OnTitleChange = { viewModel.onEvent(AddEditTaskEvent.OnTitleChange(it)) },
-                DescriptionValue = taskItem?.description?: viewModel.task.value.description,
-                OnDescriptionChange = { viewModel.onEvent(AddEditTaskEvent.OnDescriptionChange(it)) }
+                DescriptionValue = taskItem?.description ?: viewModel.task.value.description,
+                OnDescriptionChange = { viewModel.onEvent(AddEditTaskEvent.OnDescriptionChange(it)) },
+                DateValue = taskItem?.expireDate ?: viewModel.task.value.expireDate,
+                OnDateChange = { viewModel.onEvent(AddEditTaskEvent.OnDateChange(it)) },
+                TimeValue = taskItem?.expireTime ?: viewModel.task.value.expireTime,
+                OnTimeChange = { viewModel.onEvent(AddEditTaskEvent.OnTimeChange(it)) },
             )
             Buttons(navController)
         }
@@ -51,7 +60,7 @@ fun AddEditTaskScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(taskItem: Task?, navController: NavController){
+fun TopBar(taskItem: Task?, navController: NavController) {
     TopAppBar(
         title = {
             if (taskItem == null) {
@@ -75,8 +84,15 @@ fun AddEditForm(
     TitleValue: String,
     OnTitleChange: (String) -> Unit,
     DescriptionValue: String,
-    OnDescriptionChange: (String) -> Unit
+    OnDescriptionChange: (String) -> Unit,
+    DateValue: LocalDate?,
+    OnDateChange: (LocalDate) -> Unit,
+    TimeValue: LocalTime?,
+    OnTimeChange: (LocalTime) -> Unit,
 ) {
+    val dateDialogState = rememberMaterialDialogState()
+    val timeDialogState = rememberMaterialDialogState()
+
     Column {
         Box(
             modifier = Modifier
@@ -89,51 +105,86 @@ fun AddEditForm(
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
-                BasicTextField(
-                    value = TitleValue,
+                BasicTextField(value = TitleValue,
                     onValueChange = OnTitleChange,
                     decorationBox = { innerTextField ->
                         if (TitleValue.isEmpty()) {
                             Text(
-                                text = "Title",
-                                color = Color.LightGray
+                                text = "Title", color = Color.LightGray
                             )
                         }
                         innerTextField()
-                    }
-                )
+                    })
                 Divider(
-                    modifier = Modifier.fillMaxWidth(),
-                    thickness = 1.dp,
-                    color = Color.Black
+                    modifier = Modifier.fillMaxWidth(), thickness = 1.dp, color = Color.Black
                 )
-                BasicTextField(
-                    value = DescriptionValue,
+                BasicTextField(value = DescriptionValue,
                     onValueChange = OnDescriptionChange,
                     decorationBox = { innerTextField ->
                         if (DescriptionValue.isEmpty()) {
                             Text(
-                                text = "Description",
-                                color = Color.LightGray
+                                text = "Description", color = Color.LightGray
                             )
                         }
                         innerTextField()
-                    }
-                )
+                    })
             }
         }
-        Spacer(modifier = Modifier.padding(top = 16.dp))
+        Spacer(modifier = Modifier.padding(top = 8.dp))
         Row(
-            modifier = Modifier
-                .fillMaxWidth(), verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(
                 painter = painterResource(R.drawable.outline_schedule_24),
                 contentDescription = "Expire icon"
             )
-            Spacer(modifier = Modifier.padding(horizontal = 8.dp))
-            Text(text = "Task expire")
-            //todo date picker
+            Spacer(modifier = Modifier.width(4.dp))
+            Text(text = "Expire time:")
+            Spacer(modifier = Modifier.width(8.dp))
+            MaterialDialog(dialogState = dateDialogState, buttons = {
+                positiveButton("Ok")
+                negativeButton("Cancel")
+            }) {
+                datepicker(onDateChange = {
+                    OnDateChange(LocalDate.parse(it.toString()))
+                })
+            }
+            Box(
+                modifier = Modifier
+                    .border(
+                        BorderStroke(1.dp, Color.Black),
+                        shape = RoundedCornerShape(8.dp, 8.dp, 8.dp, 8.dp)
+                    )
+                    .padding(16.dp)
+                    .clickable {
+                        dateDialogState.show()
+                    },
+            ) {
+                Text(text = DateValue?.toString()?: "Select Date")
+            }
+            Spacer(modifier = Modifier.width(8.dp))
+            MaterialDialog(dialogState = timeDialogState, buttons = {
+                positiveButton("Ok")
+                negativeButton("Cancel")
+            }) {
+                timepicker(onTimeChange = {
+                    OnTimeChange(LocalTime.parse(it.toString()))
+                })
+            }
+            Box(
+                modifier = Modifier
+                    .border(
+                        BorderStroke(1.dp, Color.Black),
+                        shape = RoundedCornerShape(8.dp, 8.dp, 8.dp, 8.dp)
+                    )
+                    .padding(16.dp)
+                    .clickable {
+                        timeDialogState.show()
+                    },
+            ) {
+                Text(text = TimeValue?.toString()?: "Select Time")
+            }
         }
     }
 }

@@ -9,18 +9,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import hu.tb.tasky.model.Task
-import org.threeten.bp.ZonedDateTime
 
 @Composable
 fun TaskItemContainer(taskItem: Task, onCheckedChange: (Boolean) -> Unit) {
 
-    val formattedDate = " ${
+    /*val formattedDate = " ${
         if (taskItem.expireDate.monthValue < 10) {
             "0" + taskItem.expireDate.monthValue
         } else {
             taskItem.expireDate.monthValue
         }
-    }. ${taskItem.expireDate.dayOfMonth}. ${taskItem.expireDate.hour}:${taskItem.expireDate.minute}"
+    }. ${taskItem.expireDate.dayOfMonth}. ${taskItem.expireDate.hour}:${taskItem.expireDate.minute}"*/
 
     Card(
         modifier = Modifier
@@ -57,7 +56,7 @@ fun TaskItemContainer(taskItem: Task, onCheckedChange: (Boolean) -> Unit) {
                     modifier = Modifier.padding(0.dp)
                 )
                 Text(
-                    text = "Expire: $formattedDate",
+                    text = "Expire: " //$formattedDate",
                 )
             }
         }
@@ -70,7 +69,8 @@ fun TaskItemContainerPreview() {
     val testTask = Task(
         title = "Test",
         description = "Something more about the task...",
-        expireDate = ZonedDateTime.parse("2022-01-01T12:00:00Z"),
+        expireDate = null,
+        expireTime = null,
         isDone = false,
     )
     TaskItemContainer(taskItem = testTask, onCheckedChange = {})

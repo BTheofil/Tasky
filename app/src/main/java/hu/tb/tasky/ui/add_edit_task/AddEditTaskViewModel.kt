@@ -4,7 +4,9 @@ import androidx.compose.runtime.State
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateOf
 import hu.tb.tasky.model.Task
-import org.threeten.bp.ZonedDateTime
+import org.threeten.bp.LocalDate
+import org.threeten.bp.LocalTime
+import org.threeten.bp.format.DateTimeFormatter
 
 class AddEditTaskViewModel : ViewModel() {
 
@@ -12,7 +14,8 @@ class AddEditTaskViewModel : ViewModel() {
         Task(
             title = "",
             description = "",
-            expireDate = ZonedDateTime.parse("2022-01-01T12:00:00Z"),
+            expireDate = null,
+            expireTime = null,
             isDone = false
         )
     )
@@ -25,6 +28,12 @@ class AddEditTaskViewModel : ViewModel() {
             }
             is AddEditTaskEvent.OnDescriptionChange -> {
                 _task.value = task.value.copy(description = event.description)
+            }
+            is AddEditTaskEvent.OnDateChange -> {
+                _task.value = task.value.copy(expireDate = LocalDate.parse(event.date.toString(), DateTimeFormatter.ISO_LOCAL_DATE))
+            }
+            is AddEditTaskEvent.OnTimeChange -> {
+                _task.value = task.value.copy(expireTime = LocalTime.parse(event.time.toString(), DateTimeFormatter.ISO_LOCAL_TIME))
             }
         }
     }
