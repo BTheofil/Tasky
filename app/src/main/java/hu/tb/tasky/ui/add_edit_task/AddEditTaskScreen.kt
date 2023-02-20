@@ -24,27 +24,12 @@ import hu.tb.tasky.model.Task
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditTaskScreen(
-    navController: NavController, taskItem: Task?, viewModel: AddEditTaskViewModel = viewModel()
+    navController: NavController,
+    taskItem: Task?,
+    viewModel: AddEditTaskViewModel = viewModel()
 ) {
     Scaffold(
-        topBar = {
-            TopAppBar(
-                title = {
-                    if (taskItem == null) {
-                        Text(text = "Create New Task")
-                    } else {
-                        Text(text = "Edit Task")
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            imageVector = Icons.Filled.ArrowBack, contentDescription = "Back Arrow"
-                        )
-                    }
-                },
-            )
-        },
+        topBar = { TopBar(taskItem, navController) },
     ) { contentPadding ->
         Column(
             modifier = Modifier
@@ -54,14 +39,35 @@ fun AddEditTaskScreen(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             AddEditForm(
-                TitleValue = viewModel.task.value.title,
+                TitleValue = taskItem?.title ?: viewModel.task.value.title,
                 OnTitleChange = { viewModel.onEvent(AddEditTaskEvent.OnTitleChange(it)) },
-                DescriptionValue = viewModel.task.value.description,
+                DescriptionValue = taskItem?.description?: viewModel.task.value.description,
                 OnDescriptionChange = { viewModel.onEvent(AddEditTaskEvent.OnDescriptionChange(it)) }
             )
-            Buttons()
+            Buttons(navController)
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopBar(taskItem: Task?, navController: NavController){
+    TopAppBar(
+        title = {
+            if (taskItem == null) {
+                Text(text = "Create New Task")
+            } else {
+                Text(text = "Edit Task")
+            }
+        },
+        navigationIcon = {
+            IconButton(onClick = { navController.popBackStack() }) {
+                Icon(
+                    imageVector = Icons.Filled.ArrowBack, contentDescription = "Back Arrow"
+                )
+            }
+        },
+    )
 }
 
 @Composable
@@ -105,7 +111,7 @@ fun AddEditForm(
                     value = DescriptionValue,
                     onValueChange = OnDescriptionChange,
                     decorationBox = { innerTextField ->
-                        if (TitleValue.isEmpty()) {
+                        if (DescriptionValue.isEmpty()) {
                             Text(
                                 text = "Description",
                                 color = Color.LightGray
@@ -133,17 +139,21 @@ fun AddEditForm(
 }
 
 @Composable
-fun Buttons() {
+fun Buttons(navController: NavController) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 32.dp),
         horizontalArrangement = Arrangement.SpaceAround,
     ) {
-        Button(onClick = {}) {
+        OutlinedButton(onClick = {
+            navController.popBackStack()
+        }) {
             Text(text = "Cancel")
         }
-        Button(onClick = {}) {
+        Button(onClick = {
+            navController.popBackStack()
+        }) {
             Text(text = "Save")
         }
     }
