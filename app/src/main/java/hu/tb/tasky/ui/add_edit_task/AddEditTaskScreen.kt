@@ -12,6 +12,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -137,10 +138,10 @@ fun AddEditForm(
         ) {
             Icon(
                 painter = painterResource(R.drawable.outline_schedule_24),
-                contentDescription = "Expire icon"
+                contentDescription = "Expire icon",
             )
             Spacer(modifier = Modifier.width(4.dp))
-            Text(text = "Expire time:")
+            Text(text = "Expire time:" )
             Spacer(modifier = Modifier.width(8.dp))
             MaterialDialog(dialogState = dateDialogState, buttons = {
                 positiveButton("Ok")
@@ -152,14 +153,17 @@ fun AddEditForm(
             }
             Box(
                 modifier = Modifier
+                    .weight(1f)
                     .border(
                         BorderStroke(1.dp, Color.Black),
-                        shape = RoundedCornerShape(8.dp, 8.dp, 8.dp, 8.dp)
+                        shape = RoundedCornerShape(8.dp)
                     )
-                    .padding(16.dp)
+                    .clip(RoundedCornerShape(8.dp))
                     .clickable {
                         dateDialogState.show()
-                    },
+                    }
+                    .padding(12.dp),
+                contentAlignment = Alignment.Center
             ) {
                 Text(text = DateValue?.toString()?: "Select Date")
             }
@@ -176,14 +180,16 @@ fun AddEditForm(
                 modifier = Modifier
                     .border(
                         BorderStroke(1.dp, Color.Black),
-                        shape = RoundedCornerShape(8.dp, 8.dp, 8.dp, 8.dp)
+                        shape = RoundedCornerShape(8.dp)
                     )
-                    .padding(16.dp)
+                    .clip(RoundedCornerShape(8.dp))
                     .clickable {
                         timeDialogState.show()
-                    },
+                    }
+                    .padding(12.dp),
+                contentAlignment = Alignment.Center
             ) {
-                Text(text = TimeValue?.toString()?: "Select Time")
+                Text(text = TimeValue?.toString()?: "Select Time" )
             }
         }
     }
