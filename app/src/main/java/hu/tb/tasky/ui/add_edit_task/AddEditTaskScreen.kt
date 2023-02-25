@@ -14,20 +14,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
-import com.vanpra.composematerialdialogs.MaterialDialog
-import com.vanpra.composematerialdialogs.datetime.date.datepicker
-import com.vanpra.composematerialdialogs.datetime.time.timepicker
-import com.vanpra.composematerialdialogs.rememberMaterialDialogState
 import hu.tb.tasky.R
 import hu.tb.tasky.model.Task
 import org.threeten.bp.LocalDate
 import org.threeten.bp.LocalTime
+import android.app.TimePickerDialog
+import android.widget.TimePicker
+import android.app.DatePickerDialog
+import android.widget.DatePicker
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,9 +51,15 @@ fun AddEditTaskScreen(
                 DescriptionValue = taskItem?.description ?: viewModel.task.value.description,
                 OnDescriptionChange = { viewModel.onEvent(AddEditTaskEvent.OnDescriptionChange(it)) },
                 DateValue = taskItem?.expireDate ?: viewModel.task.value.expireDate,
-                OnDateChange = { viewModel.onEvent(AddEditTaskEvent.OnDateChange(it)) },
+                OnDateChange = { _, year, monthOfYear, dayOfMonth ->
+                    val selectedDate = LocalDate.of(year, monthOfYear + 1, dayOfMonth)
+                    viewModel.onEvent(AddEditTaskEvent.OnDateChange(selectedDate))
+                },
                 TimeValue = taskItem?.expireTime ?: viewModel.task.value.expireTime,
-                OnTimeChange = { viewModel.onEvent(AddEditTaskEvent.OnTimeChange(it)) },
+                OnTimeChange = { _, hourOfDay, minute ->
+                    val selectedTime = LocalTime.of(hourOfDay, minute)
+                    viewModel.onEvent(AddEditTaskEvent.OnTimeChange(selectedTime))
+                },
             )
             Buttons(navController)
         }
@@ -87,13 +94,10 @@ fun AddEditForm(
     DescriptionValue: String,
     OnDescriptionChange: (String) -> Unit,
     DateValue: LocalDate?,
-    OnDateChange: (LocalDate) -> Unit,
+    OnDateChange: (DatePicker, Int, Int, Int) -> Unit,
     TimeValue: LocalTime?,
-    OnTimeChange: (LocalTime) -> Unit,
+    OnTimeChange: (TimePicker, Int, Int) -> Unit,
 ) {
-    val dateDialogState = rememberMaterialDialogState()
-    val timeDialogState = rememberMaterialDialogState()
-
     Column {
         Box(
             modifier = Modifier
@@ -141,16 +145,15 @@ fun AddEditForm(
                 contentDescription = "Expire icon",
             )
             Spacer(modifier = Modifier.width(4.dp))
-            Text(text = "Expire time:" )
+            Text(text = "Expire time:")
             Spacer(modifier = Modifier.width(8.dp))
-            MaterialDialog(dialogState = dateDialogState, buttons = {
-                positiveButton("Ok")
-                negativeButton("Cancel")
-            }) {
-                datepicker(onDateChange = {
-                    OnDateChange(LocalDate.parse(it.toString()))
-                })
-            }
+            val datePickerDialog = DatePickerDialog(
+                LocalContext.current,
+                OnDateChange,
+                LocalDate.now().year,
+                LocalDate.now().month.value,
+                LocalDate.now().dayOfMonth,
+            )
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -160,22 +163,18 @@ fun AddEditForm(
                     )
                     .clip(RoundedCornerShape(8.dp))
                     .clickable {
-                        dateDialogState.show()
+                        datePickerDialog.show()
                     }
                     .padding(12.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = DateValue?.toString()?: "Select Date")
+                Text(text = DateValue?.toString() ?: "Select Date")
             }
             Spacer(modifier = Modifier.width(8.dp))
-            MaterialDialog(dialogState = timeDialogState, buttons = {
-                positiveButton("Ok")
-                negativeButton("Cancel")
-            }) {
-                timepicker(onTimeChange = {
-                    OnTimeChange(LocalTime.parse(it.toString()))
-                })
-            }
+            val timePickerDialog = TimePickerDialog(
+                LocalContext.current,
+                OnTimeChange, LocalTime.now().hour, LocalTime.now().minute, false
+            )
             Box(
                 modifier = Modifier
                     .border(
@@ -184,12 +183,12 @@ fun AddEditForm(
                     )
                     .clip(RoundedCornerShape(8.dp))
                     .clickable {
-                        timeDialogState.show()
+                        timePickerDialog.show()
                     }
                     .padding(12.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = TimeValue?.toString()?: "Select Time" )
+                Text(text = TimeValue?.toString() ?: "Select Time")
             }
         }
     }
