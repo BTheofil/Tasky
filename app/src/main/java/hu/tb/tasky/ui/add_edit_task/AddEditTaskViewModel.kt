@@ -1,6 +1,5 @@
 package hu.tb.tasky.ui.add_edit_task
 
-import android.util.Log
 import androidx.compose.runtime.State
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateOf
@@ -43,9 +42,7 @@ class AddEditTaskViewModel @Inject constructor(
                 _task.value = task.value.copy(expireTime = LocalTime.parse(event.time.toString(), DateTimeFormatter.ISO_LOCAL_TIME))
             }
             is AddEditTaskEvent.Save -> {
-               // mockRepositoryImpl.addTask(event.task)
                 mockRepositoryImpl.addTask(_task.value)
-                Log.d("MYTAG", mockRepositoryImpl.getTaskList().toString())
             }
         }
     }

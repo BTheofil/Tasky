@@ -13,13 +13,16 @@ import hu.tb.tasky.model.Task
 @Composable
 fun TaskItemContainer(taskItem: Task, onCheckedChange: (Boolean) -> Unit) {
 
-    /*val formattedDate = " ${
-        if (taskItem.expireDate.monthValue < 10) {
-            "0" + taskItem.expireDate.monthValue
-        } else {
-            taskItem.expireDate.monthValue
-        }
-    }. ${taskItem.expireDate.dayOfMonth}. ${taskItem.expireDate.hour}:${taskItem.expireDate.minute}"*/
+    var formattedDate: String? = null
+    if (taskItem.expireDate != null && taskItem.expireTime != null) {
+        formattedDate = " ${
+            if (taskItem.expireDate.monthValue < 10) {
+                "0" + taskItem.expireDate.monthValue
+            } else {
+                taskItem.expireDate.monthValue
+            }
+        }. ${taskItem.expireDate.dayOfMonth}. ${taskItem.expireTime.hour}:${taskItem.expireTime.minute}"
+    }
 
     Card(
         modifier = Modifier
@@ -55,9 +58,9 @@ fun TaskItemContainer(taskItem: Task, onCheckedChange: (Boolean) -> Unit) {
                     onCheckedChange = onCheckedChange,
                     modifier = Modifier.padding(0.dp)
                 )
-                Text(
-                    text = "Expire: " //$formattedDate",
-                )
+                if (formattedDate != null) {
+                    Text(text = "Expire: $formattedDate")
+                }
             }
         }
     }
