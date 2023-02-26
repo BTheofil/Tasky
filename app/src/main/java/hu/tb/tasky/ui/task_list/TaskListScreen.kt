@@ -7,7 +7,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import hu.tb.tasky.ui.main.FloatingActionButtonComponent
 import hu.tb.tasky.ui.main.TopBar
@@ -15,7 +15,7 @@ import hu.tb.tasky.ui.main.TopBar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TaskListScreen(
-    taskListViewModel: TaskListViewModel = viewModel(),
+    taskListViewModel: TaskListViewModel = hiltViewModel(),
     navController: NavController
 ) {
     Scaffold(

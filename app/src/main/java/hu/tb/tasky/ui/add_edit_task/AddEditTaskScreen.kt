@@ -18,7 +18,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import hu.tb.tasky.R
@@ -29,11 +28,12 @@ import android.app.TimePickerDialog
 import android.widget.TimePicker
 import android.app.DatePickerDialog
 import android.widget.DatePicker
+import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditTaskScreen(
-    navController: NavController, taskItem: Task?, viewModel: AddEditTaskViewModel = viewModel()
+    navController: NavController, taskItem: Task?, viewModel: AddEditTaskViewModel = hiltViewModel()
 ) {
     Scaffold(
         topBar = { TopBar(taskItem, navController) },
@@ -61,7 +61,13 @@ fun AddEditTaskScreen(
                     viewModel.onEvent(AddEditTaskEvent.OnTimeChange(selectedTime))
                 },
             )
-            Buttons(navController)
+            Buttons(
+                OnSaveClicked = {
+                    viewModel.onEvent(AddEditTaskEvent.Save)
+                    navController.popBackStack()
+                },
+                OnCancelClicked = { navController.popBackStack() }
+            )
         }
     }
 }
@@ -195,21 +201,24 @@ fun AddEditForm(
 }
 
 @Composable
-fun Buttons(navController: NavController) {
+fun Buttons(
+    OnSaveClicked: () -> Unit,
+    OnCancelClicked: () -> Unit,
+) {
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(bottom = 32.dp),
         horizontalArrangement = Arrangement.SpaceAround,
     ) {
-        OutlinedButton(onClick = {
-            navController.popBackStack()
-        }) {
+        OutlinedButton(
+            onClick = OnCancelClicked
+        ) {
             Text(text = "Cancel")
         }
-        Button(onClick = {
-            navController.popBackStack()
-        }) {
+        Button(
+            onClick = OnSaveClicked
+        ) {
             Text(text = "Save")
         }
     }

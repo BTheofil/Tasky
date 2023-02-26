@@ -1,14 +1,21 @@
 package hu.tb.tasky.ui.add_edit_task
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateOf
+import dagger.hilt.android.lifecycle.HiltViewModel
+import hu.tb.tasky.data.repository.TaskRepositoryImpl
 import hu.tb.tasky.model.Task
 import org.threeten.bp.LocalDate
 import org.threeten.bp.LocalTime
 import org.threeten.bp.format.DateTimeFormatter
+import javax.inject.Inject
 
-class AddEditTaskViewModel : ViewModel() {
+@HiltViewModel
+class AddEditTaskViewModel @Inject constructor(
+    private val mockRepositoryImpl: TaskRepositoryImpl
+) : ViewModel() {
 
     private val _task = mutableStateOf(
         Task(
@@ -34,6 +41,11 @@ class AddEditTaskViewModel : ViewModel() {
             }
             is AddEditTaskEvent.OnTimeChange -> {
                 _task.value = task.value.copy(expireTime = LocalTime.parse(event.time.toString(), DateTimeFormatter.ISO_LOCAL_TIME))
+            }
+            is AddEditTaskEvent.Save -> {
+               // mockRepositoryImpl.addTask(event.task)
+                mockRepositoryImpl.addTask(_task.value)
+                Log.d("MYTAG", mockRepositoryImpl.getTaskList().toString())
             }
         }
     }

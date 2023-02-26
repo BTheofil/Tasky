@@ -6,12 +6,14 @@ import androidx.activity.compose.setContent
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import dagger.hilt.android.AndroidEntryPoint
 import hu.tb.tasky.ui.add_edit_task.AddEditTaskScreen
 import hu.tb.tasky.ui.route.RouteNames.ADD_EDIT_SCREEN
 import hu.tb.tasky.ui.route.RouteNames.MAIN_SCREEN
 import hu.tb.tasky.ui.task_list.TaskListScreen
 import hu.tb.tasky.ui.theme.TaskyTheme
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
