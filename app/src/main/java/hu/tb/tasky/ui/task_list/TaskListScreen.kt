@@ -2,6 +2,7 @@ package hu.tb.tasky.ui.task_list
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -26,13 +27,16 @@ fun TaskListScreen(
             Modifier
                 .padding(top = contentPadding.calculateTopPadding() + 16.dp)
                 .padding(
-                    horizontal = 16.dp
+                    horizontal = 16.dp,
                 )
         ) {
-            items(taskListViewModel.taskList.size) { index ->
+            items(
+                items = taskListViewModel.taskList,
+                key = { task -> task.title }
+            ) { task ->
                 TaskItemContainer(
-                    taskListViewModel.taskList[index],
-                    onCheckedChange = { taskListViewModel.onTaskIsDoneChange(index, it) }
+                    task,
+                    onCheckedChange = { taskListViewModel.onTaskIsDoneChange(task, it) }
                 )
             }
         }

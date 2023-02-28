@@ -22,7 +22,7 @@ class AddEditTaskViewModel @Inject constructor(
             description = "",
             expireDate = null,
             expireTime = null,
-            isDone = false
+            initialChecked = false,
         )
     )
     val task: State<Task> = _task

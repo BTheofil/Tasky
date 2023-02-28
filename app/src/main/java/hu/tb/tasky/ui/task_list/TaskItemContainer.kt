@@ -74,7 +74,7 @@ fun TaskItemContainerPreview() {
         description = "Something more about the task...",
         expireDate = null,
         expireTime = null,
-        isDone = false,
+        initialChecked = false,
     )
     TaskItemContainer(taskItem = testTask, onCheckedChange = {})
 }

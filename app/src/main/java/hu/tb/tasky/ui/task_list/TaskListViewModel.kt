@@ -1,6 +1,5 @@
 package hu.tb.tasky.ui.task_list
 
-import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.tb.tasky.data.repository.TaskRepositoryImpl
@@ -12,17 +11,12 @@ class TaskListViewModel @Inject constructor(
     mockTask: TaskRepositoryImpl,
 ) : ViewModel() {
 
-    private val _taskList = mutableStateListOf(
-        Task(
-            title = "Test",
-            description = "Something more about the task...",
-            expireDate = null,
-            expireTime = null,
-            isDone = false),
-    )
-    val taskList: List<Task> = mockTask.getTaskList()
+    private val _allTasks = mockTask.getTaskList()
+    val taskList = _allTasks
 
-    fun onTaskIsDoneChange(index: Int, newValue: Boolean){
-        _taskList[index] = _taskList[index].copy(isDone = newValue)
+    fun onTaskIsDoneChange(editedTask: Task, newValue: Boolean) {
+        taskList.find { it == editedTask }?.let { task ->
+            task.isDone = newValue
+        }
     }
 }
