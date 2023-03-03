@@ -5,7 +5,6 @@ import androidx.compose.runtime.toMutableStateList
 import hu.tb.tasky.model.Task
 
 class MockTask {
-
     private val list = emptyList<Task>().toMutableStateList()
 
     fun add(item: Task) {
