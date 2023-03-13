@@ -1,5 +1,6 @@
 package hu.tb.tasky.ui.task_list
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -13,6 +14,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import hu.tb.tasky.ui.main.FloatingActionButtonComponent
 import hu.tb.tasky.ui.main.TopBar
+import hu.tb.tasky.ui.route.RouteNames
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +39,10 @@ fun TaskListScreen(
                 key = { task -> task.title }
             ) { task ->
                 TaskItemContainer(
-                    task,
+                    modifier = Modifier.clickable {
+                        navController.navigate(RouteNames.ADD_EDIT_SCREEN + "?editedTask=${task.title}")
+                    },
+                    taskItem = task,
                 )
             }
         }

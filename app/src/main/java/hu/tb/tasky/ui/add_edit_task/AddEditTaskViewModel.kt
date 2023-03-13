@@ -3,6 +3,7 @@ package hu.tb.tasky.ui.add_edit_task
 import androidx.compose.runtime.State
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.SavedStateHandle
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.tb.tasky.ui.add_edit_task.alarm.AlarmScheduler
 import hu.tb.tasky.data.repository.TaskRepositoryImpl
@@ -16,6 +17,7 @@ import javax.inject.Inject
 class AddEditTaskViewModel @Inject constructor(
     private val mockRepositoryImpl: TaskRepositoryImpl,
     private val scheduler: AlarmScheduler,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _task = mutableStateOf(
@@ -29,8 +31,21 @@ class AddEditTaskViewModel @Inject constructor(
     )
     val task: State<Task> = _task
 
-    fun onEvent(event: AddEditTaskEvent){
-        when(event){
+    init {
+        savedStateHandle.get<String>("editedTask")?.let { taskTitle ->
+            mockRepositoryImpl.getTaskById(taskTitle)?.also {
+                _task.value = task.value.copy(
+                    title = it.title,
+                    description = it.description,
+                    expireDate = it.expireDate,
+                    expireTime = it.expireTime,
+                )
+            }
+        }
+    }
+
+    fun onEvent(event: AddEditTaskEvent) {
+        when (event) {
             is AddEditTaskEvent.OnTitleChange -> {
                 _task.value = task.value.copy(title = event.title)
             }
@@ -38,10 +53,20 @@ class AddEditTaskViewModel @Inject constructor(
                 _task.value = task.value.copy(description = event.description)
             }
             is AddEditTaskEvent.OnDateChange -> {
-                _task.value = task.value.copy(expireDate = LocalDate.parse(event.date.toString(), DateTimeFormatter.ISO_LOCAL_DATE))
+                _task.value = task.value.copy(
+                    expireDate = LocalDate.parse(
+                        event.date.toString(),
+                        DateTimeFormatter.ISO_LOCAL_DATE
+                    )
+                )
             }
             is AddEditTaskEvent.OnTimeChange -> {
-                _task.value = task.value.copy(expireTime = LocalTime.parse(event.time.toString(), DateTimeFormatter.ISO_LOCAL_TIME))
+                _task.value = task.value.copy(
+                    expireTime = LocalTime.parse(
+                        event.time.toString(),
+                        DateTimeFormatter.ISO_LOCAL_TIME
+                    )
+                )
             }
             is AddEditTaskEvent.Save -> {
                 scheduler.schedule(_task.value)

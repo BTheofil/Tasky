@@ -11,8 +11,8 @@ import hu.tb.tasky.ui.route.RouteNames.ADD_EDIT_SCREEN
 @Composable
 fun FloatingActionButtonComponent(navController: NavController) {
     FloatingActionButton(
-        onClick = {navController.navigate(ADD_EDIT_SCREEN)},
-    ){
+        onClick = { navController.navigate(ADD_EDIT_SCREEN) },
+    ) {
         Icon(Icons.Filled.Add, "Add new task")
     }
 }

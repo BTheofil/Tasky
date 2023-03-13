@@ -16,6 +16,7 @@ import androidx.compose.runtime.setValue
 
 @Composable
 fun TaskItemContainer(
+    modifier: Modifier = Modifier,
     taskItem: Task,
 ) {
 
@@ -32,7 +33,7 @@ fun TaskItemContainer(
     }
 
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
             .height(150.dp),
         border = BorderStroke(width = 1.dp, color = MaterialTheme.colorScheme.outline)

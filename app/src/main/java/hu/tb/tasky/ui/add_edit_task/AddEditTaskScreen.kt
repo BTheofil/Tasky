@@ -33,10 +33,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditTaskScreen(
-    navController: NavController, taskItem: Task?, viewModel: AddEditTaskViewModel = hiltViewModel()
+    navController: NavController,
+    viewModel: AddEditTaskViewModel = hiltViewModel()
 ) {
     Scaffold(
-        topBar = { TopBar(taskItem, navController) },
+        topBar = { TopBar(viewModel.task.value, navController) },
     ) { contentPadding ->
         Column(
             modifier = Modifier
@@ -46,16 +47,16 @@ fun AddEditTaskScreen(
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             AddEditForm(
-                TitleValue = taskItem?.title ?: viewModel.task.value.title,
+                TitleValue = viewModel.task.value.title,
                 OnTitleChange = { viewModel.onEvent(AddEditTaskEvent.OnTitleChange(it)) },
-                DescriptionValue = taskItem?.description ?: viewModel.task.value.description,
+                DescriptionValue = viewModel.task.value.description,
                 OnDescriptionChange = { viewModel.onEvent(AddEditTaskEvent.OnDescriptionChange(it)) },
-                DateValue = taskItem?.expireDate ?: viewModel.task.value.expireDate,
+                DateValue = viewModel.task.value.expireDate,
                 OnDateChange = { _, year, monthOfYear, dayOfMonth ->
                     val selectedDate = LocalDate.of(year, monthOfYear + 1, dayOfMonth)
                     viewModel.onEvent(AddEditTaskEvent.OnDateChange(selectedDate))
                 },
-                TimeValue = taskItem?.expireTime ?: viewModel.task.value.expireTime,
+                TimeValue = viewModel.task.value.expireTime,
                 OnTimeChange = { _, hourOfDay, minute ->
                     val selectedTime = LocalTime.of(hourOfDay, minute)
                     viewModel.onEvent(AddEditTaskEvent.OnTimeChange(selectedTime))
@@ -227,5 +228,5 @@ fun Buttons(
 @Preview
 @Composable
 fun AddEditTaskScreenPreview() {
-    AddEditTaskScreen(navController = rememberNavController(), taskItem = null)
+    AddEditTaskScreen(navController = rememberNavController())
 }

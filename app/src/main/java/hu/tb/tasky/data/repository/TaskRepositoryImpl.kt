@@ -14,6 +14,10 @@ class TaskRepositoryImpl @Inject constructor(
         return db.get()
     }
 
+    override fun getTaskById(title: String): Task? {
+        return db.getById(title)
+    }
+
     override fun addTask(item: Task) {
         return db.add(item)
     }

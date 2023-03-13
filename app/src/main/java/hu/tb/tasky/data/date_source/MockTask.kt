@@ -14,4 +14,10 @@ class MockTask {
     fun get(): SnapshotStateList<Task> {
         return list
     }
+
+    fun getById(title: String): Task? {
+        return list.find {
+            it.title == title
+        }
+    }
 }
