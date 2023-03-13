@@ -4,14 +4,22 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import hu.tb.tasky.model.Task
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @Composable
-fun TaskItemContainer(taskItem: Task, onCheckedChange: (Boolean) -> Unit) {
+fun TaskItemContainer(
+    taskItem: Task,
+) {
+
+    var isDone by rememberSaveable { mutableStateOf(false) }
 
     var formattedDate: String? = null
     if (taskItem.expireDate != null && taskItem.expireTime != null) {
@@ -54,8 +62,8 @@ fun TaskItemContainer(taskItem: Task, onCheckedChange: (Boolean) -> Unit) {
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
                 Checkbox(
-                    checked = taskItem.isDone,
-                    onCheckedChange = onCheckedChange,
+                    checked = isDone,
+                    onCheckedChange = { isDone = it },
                     modifier = Modifier.padding(0.dp)
                 )
                 if (formattedDate != null) {
@@ -76,5 +84,5 @@ fun TaskItemContainerPreview() {
         expireTime = null,
         initialChecked = false,
     )
-    TaskItemContainer(taskItem = testTask, onCheckedChange = {})
+    TaskItemContainer(taskItem = testTask)
 }

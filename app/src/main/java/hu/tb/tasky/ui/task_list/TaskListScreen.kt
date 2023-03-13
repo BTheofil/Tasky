@@ -36,7 +36,6 @@ fun TaskListScreen(
             ) { task ->
                 TaskItemContainer(
                     task,
-                    onCheckedChange = { taskListViewModel.onTaskIsDoneChange(task, it) }
                 )
             }
         }
