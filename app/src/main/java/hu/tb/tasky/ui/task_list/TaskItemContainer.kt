@@ -21,15 +21,14 @@ fun TaskItemContainer(
 
     var isDone by rememberSaveable { mutableStateOf(false) }
 
-    var formattedDate: String? = null
-    if (taskItem.expireDate != null && taskItem.expireTime != null) {
-        formattedDate = " ${
-            if (taskItem.expireDate.monthValue < 10) {
-                "0" + taskItem.expireDate.monthValue
-            } else {
-                taskItem.expireDate.monthValue
-            }
-        }. ${taskItem.expireDate.dayOfMonth}. ${taskItem.expireTime.hour}:${taskItem.expireTime.minute}"
+    val formattedDate = taskItem.expireDate?.let { date ->
+        taskItem.expireTime?.let { time ->
+            "${date.monthValue.toString().padStart(2, '0')}. " +
+                    "${date.dayOfMonth.toString().padStart(2, '0')}. " +
+                    "${time.hour.toString().padStart(2, '0')}:${
+                        time.minute.toString().padStart(2, '0')
+                    }"
+        }
     }
 
     Card(

@@ -1,5 +1,6 @@
 package hu.tb.tasky.ui.task_list
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -24,7 +25,8 @@ fun TaskListScreen(
         floatingActionButton = { FloatingActionButtonComponent(navController = navController) }
     ) { contentPadding ->
         LazyColumn(
-            Modifier
+            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier
                 .padding(top = contentPadding.calculateTopPadding() + 16.dp)
                 .padding(
                     horizontal = 16.dp,
