@@ -1,4 +1,4 @@
-package hu.tb.tasky.ui.main
+package hu.tb.tasky.ui.components
 
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable

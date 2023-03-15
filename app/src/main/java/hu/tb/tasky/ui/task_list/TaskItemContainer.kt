@@ -10,14 +10,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import hu.tb.tasky.model.Task
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import hu.tb.tasky.model.TaskEntity
 
 @Composable
 fun TaskItemContainer(
     modifier: Modifier = Modifier,
-    taskItem: Task,
+    taskItem: TaskEntity,
 ) {
 
     var isDone by rememberSaveable { mutableStateOf(false) }
@@ -77,7 +77,7 @@ fun TaskItemContainer(
 @Preview
 @Composable
 fun TaskItemContainerPreview() {
-    val testTask = Task(
+    val testTask = TaskEntity(
         title = "Test",
         description = "Something more about the task...",
         expireDate = null,

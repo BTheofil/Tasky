@@ -1,4 +1,4 @@
-package hu.tb.tasky.ui.main
+package hu.tb.tasky.ui.components
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add

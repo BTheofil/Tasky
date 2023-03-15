@@ -4,10 +4,14 @@ import androidx.compose.runtime.State
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import hu.tb.tasky.data.repository.TaskEntityRepository
 import hu.tb.tasky.ui.add_edit_task.alarm.AlarmScheduler
 import hu.tb.tasky.data.repository.TaskRepositoryImpl
 import hu.tb.tasky.model.Task
+import hu.tb.tasky.model.TaskEntity
+import kotlinx.coroutines.launch
 import org.threeten.bp.LocalDate
 import org.threeten.bp.LocalTime
 import org.threeten.bp.format.DateTimeFormatter
@@ -17,7 +21,8 @@ import javax.inject.Inject
 class AddEditTaskViewModel @Inject constructor(
     private val mockRepositoryImpl: TaskRepositoryImpl,
     private val scheduler: AlarmScheduler,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    private val realRepository: TaskEntityRepository,
 ) : ViewModel() {
 
     private val _task = mutableStateOf(
@@ -70,9 +75,19 @@ class AddEditTaskViewModel @Inject constructor(
             }
             is AddEditTaskEvent.Save -> {
                 scheduler.schedule(_task.value)
-                mockRepositoryImpl.addTask(_task.value)
+                viewModelScope.launch {
+                    realRepository.insertTaskEntity(converter(_task.value))
+                }
             }
         }
     }
+
+    private fun converter(task: Task): TaskEntity = TaskEntity(
+        title = task.title,
+        description = task.description,
+        expireTime = task.expireTime,
+        expireDate = task.expireDate,
+        initialChecked = task.initialChecked
+    )
 
 }
