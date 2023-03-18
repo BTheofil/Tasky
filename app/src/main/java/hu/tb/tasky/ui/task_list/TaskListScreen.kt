@@ -41,7 +41,7 @@ fun TaskListScreen(
         ) {
             items(
                 items = items,
-                key = { task -> task.title }
+                key = { task -> task.id!! }
             ) { task ->
                 TaskItemContainer(
                     modifier = Modifier.clickable {

@@ -117,7 +117,10 @@ fun AddEditForm(
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
-                BasicTextField(value = TitleValue,
+                BasicTextField(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    value = TitleValue,
                     onValueChange = OnTitleChange,
                     decorationBox = { innerTextField ->
                         if (TitleValue.isEmpty()) {
@@ -128,9 +131,13 @@ fun AddEditForm(
                         innerTextField()
                     })
                 Divider(
-                    modifier = Modifier.fillMaxWidth(), thickness = 1.dp, color = Color.Black
+                    modifier = Modifier.fillMaxWidth(),
+                    thickness = 1.dp, color = Color.Black
                 )
-                BasicTextField(value = DescriptionValue,
+                BasicTextField(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    value = DescriptionValue,
                     onValueChange = OnDescriptionChange,
                     decorationBox = { innerTextField ->
                         if (DescriptionValue.isEmpty()) {
