@@ -45,7 +45,7 @@ fun TaskListScreen(
             ) { task ->
                 TaskItemContainer(
                     modifier = Modifier.clickable {
-                        navController.navigate(RouteNames.ADD_EDIT_SCREEN + "?editedTask=${task.title}")
+                        navController.navigate(RouteNames.ADD_EDIT_SCREEN + "?editedTask=${task.id}")
                     },
                     taskItem = task,
                 )

@@ -3,6 +3,7 @@ package hu.tb.tasky
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -29,10 +30,13 @@ class MainActivity : ComponentActivity() {
                     composable(MAIN_SCREEN) { TaskListScreen(navController = navController) }
                     composable(
                         route = ADD_EDIT_SCREEN + "?editedTask={editedTask}",
-                        arguments = listOf(navArgument(name = "editedTask") { defaultValue = "" })
+                        arguments = listOf(navArgument(name = "editedTask") {
+                            defaultValue = -1
+                            type = NavType.IntType
+                        })
                     ) {
                         AddEditTaskScreen(
-                            navController = navController
+                            navController = navController,
                         )
                     }
                 }

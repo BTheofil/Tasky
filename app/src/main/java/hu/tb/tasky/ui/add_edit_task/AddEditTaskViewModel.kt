@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.tb.tasky.data.repository.TaskEntityRepository
 import hu.tb.tasky.ui.add_edit_task.alarm.AlarmScheduler
-import hu.tb.tasky.data.repository.TaskRepositoryImpl
 import hu.tb.tasky.model.Task
 import hu.tb.tasky.model.TaskEntity
 import kotlinx.coroutines.launch
@@ -19,7 +18,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddEditTaskViewModel @Inject constructor(
-    private val mockRepositoryImpl: TaskRepositoryImpl,
     private val scheduler: AlarmScheduler,
     savedStateHandle: SavedStateHandle,
     private val realRepository: TaskEntityRepository,
@@ -37,14 +35,16 @@ class AddEditTaskViewModel @Inject constructor(
     val task: State<Task> = _task
 
     init {
-        savedStateHandle.get<String>("editedTask")?.let { taskTitle ->
-            mockRepositoryImpl.getTaskById(taskTitle)?.also {
-                _task.value = task.value.copy(
-                    title = it.title,
-                    description = it.description,
-                    expireDate = it.expireDate,
-                    expireTime = it.expireTime,
-                )
+        viewModelScope.launch {
+            savedStateHandle.get<Int>("editedTask")?.let { taskId ->
+                realRepository.getTaskEntityById(taskId)?.also {
+                    _task.value = task.value.copy(
+                        title = it.title,
+                        description = it.description,
+                        expireDate = it.expireDate,
+                        expireTime = it.expireTime,
+                    )
+                }
             }
         }
     }

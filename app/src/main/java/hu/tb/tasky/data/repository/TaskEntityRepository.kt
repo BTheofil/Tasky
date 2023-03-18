@@ -11,4 +11,6 @@ class TaskEntityRepository(
     fun getTaskEntities(): Flow<List<TaskEntity>> = dao.getTaskEntities()
 
     suspend fun insertTaskEntity(taskEntity: TaskEntity): Long = dao.insertTaskEntity(taskEntity)
+
+    suspend fun getTaskEntityById(id: Int) = dao.getTaskEntityById(id)
 }

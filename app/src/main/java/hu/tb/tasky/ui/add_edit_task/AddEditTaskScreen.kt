@@ -75,10 +75,10 @@ fun AddEditTaskScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(taskItem: Task?, navController: NavController) {
+fun TopBar(taskItem: Task, navController: NavController) {
     TopAppBar(
         title = {
-            if (taskItem == null) {
+            if (taskItem.title == "") {
                 Text(text = "Create New Task")
             } else {
                 Text(text = "Edit Task")
