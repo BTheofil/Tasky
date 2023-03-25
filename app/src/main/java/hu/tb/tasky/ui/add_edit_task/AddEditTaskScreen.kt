@@ -1,5 +1,6 @@
 package hu.tb.tasky.ui.add_edit_task
 
+import android.Manifest
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,7 +28,11 @@ import org.threeten.bp.LocalTime
 import android.app.TimePickerDialog
 import android.widget.TimePicker
 import android.app.DatePickerDialog
+import android.os.Build
 import android.widget.DatePicker
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.runtime.SideEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,6 +41,16 @@ fun AddEditTaskScreen(
     navController: NavController,
     viewModel: AddEditTaskViewModel = hiltViewModel()
 ) {
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(),
+        onResult = {},
+    )
+    SideEffect {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
     Scaffold(
         topBar = { TopBar(viewModel.task.value, navController) },
     ) { contentPadding ->
@@ -78,7 +93,7 @@ fun AddEditTaskScreen(
 fun TopBar(taskItem: Task, navController: NavController) {
     TopAppBar(
         title = {
-            if (taskItem.title == "") {
+            if (taskItem.id == null) {
                 Text(text = "Create New Task")
             } else {
                 Text(text = "Edit Task")
