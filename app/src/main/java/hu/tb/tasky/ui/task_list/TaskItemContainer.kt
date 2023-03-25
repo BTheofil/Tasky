@@ -2,6 +2,8 @@ package hu.tb.tasky.ui.task_list
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
@@ -18,6 +20,7 @@ import hu.tb.tasky.model.TaskEntity
 fun TaskItemContainer(
     modifier: Modifier = Modifier,
     taskItem: TaskEntity,
+    onDeleteTask: () -> Unit,
 ) {
 
     var isDone by rememberSaveable { mutableStateOf(false) }
@@ -61,11 +64,17 @@ fun TaskItemContainer(
                 horizontalAlignment = Alignment.End,
                 verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Checkbox(
-                    checked = isDone,
-                    onCheckedChange = { isDone = it },
-                    modifier = Modifier.padding(0.dp)
-                )
+                Row {
+                    Checkbox(
+                        checked = isDone,
+                        onCheckedChange = { isDone = it },
+                        modifier = Modifier.padding(0.dp)
+                    )
+                    IconButton(onClick = onDeleteTask) {
+                        Icon(Icons.Filled.Delete, "Remove task")
+                    }
+                }
+
                 if (formattedDate != null) {
                     Text(text = "Expire: $formattedDate")
                 }
@@ -84,5 +93,5 @@ fun TaskItemContainerPreview() {
         expireTime = null,
         initialChecked = false,
     )
-    TaskItemContainer(taskItem = testTask)
+    TaskItemContainer(taskItem = testTask, onDeleteTask = {})
 }

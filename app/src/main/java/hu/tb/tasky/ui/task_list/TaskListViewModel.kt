@@ -25,4 +25,14 @@ class TaskListViewModel @Inject constructor(
         }
     }
 
+    fun onEvent(event: TaskListEvent){
+        when(event){
+            is TaskListEvent.OnDeleteClick -> {
+                viewModelScope.launch {
+                    realRepository.deleteTask(event.task)
+                }
+            }
+        }
+    }
+
 }

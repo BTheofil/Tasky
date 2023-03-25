@@ -13,4 +13,6 @@ class TaskEntityRepository(
     suspend fun insertTaskEntity(taskEntity: TaskEntity): Long = dao.insertTaskEntity(taskEntity)
 
     suspend fun getTaskEntityById(id: Int) = dao.getTaskEntityById(id)
+
+    suspend fun deleteTask(task: TaskEntity) = dao.deleteTaskEntity(task)
 }
