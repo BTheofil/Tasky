@@ -14,7 +14,7 @@ class AlarmScheduler(
     private val alarmManager = context.getSystemService(AlarmManager::class.java)
 
     fun schedule(item: Task) {
-        //todo outsource
+        // todo outsource the null check
         if(item.expireDate == null && item.expireTime == null){
             return
         }
@@ -34,7 +34,7 @@ class AlarmScheduler(
             ).atZone(ZoneId.systemDefault()).toEpochSecond() * 1000,
             PendingIntent.getBroadcast(
                 context,
-                item.hashCode(),
+                item.id!!,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
@@ -45,7 +45,7 @@ class AlarmScheduler(
         alarmManager.cancel(
             PendingIntent.getBroadcast(
                 context,
-                item.hashCode(),
+                item.id!!,
                 Intent(context, AlarmReceiver::class.java),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )

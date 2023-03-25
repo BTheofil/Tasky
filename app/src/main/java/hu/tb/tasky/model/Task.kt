@@ -7,6 +7,7 @@ import org.threeten.bp.LocalTime
 
 @Parcelize
 data class Task(
+    val id: Int? = null,
     val title: String,
     val description: String,
     val expireDate: LocalDate?,

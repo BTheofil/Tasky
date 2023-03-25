@@ -39,6 +39,7 @@ class AddEditTaskViewModel @Inject constructor(
             savedStateHandle.get<Int>("editedTask")?.let { taskId ->
                 realRepository.getTaskEntityById(taskId)?.also {
                     _task.value = task.value.copy(
+                        id = it.id,
                         title = it.title,
                         description = it.description,
                         expireDate = it.expireDate,
@@ -58,6 +59,9 @@ class AddEditTaskViewModel @Inject constructor(
                 _task.value = task.value.copy(description = event.description)
             }
             is AddEditTaskEvent.OnDateChange -> {
+                if(task.value.id != null){
+                    scheduler.cancel(task.value)
+                }
                 _task.value = task.value.copy(
                     expireDate = LocalDate.parse(
                         event.date.toString(),
@@ -66,6 +70,9 @@ class AddEditTaskViewModel @Inject constructor(
                 )
             }
             is AddEditTaskEvent.OnTimeChange -> {
+                if(task.value.id != null){
+                    scheduler.cancel(task.value)
+                }
                 _task.value = task.value.copy(
                     expireTime = LocalTime.parse(
                         event.time.toString(),
@@ -74,15 +81,16 @@ class AddEditTaskViewModel @Inject constructor(
                 )
             }
             is AddEditTaskEvent.Save -> {
-                scheduler.schedule(_task.value)
                 viewModelScope.launch {
-                    realRepository.insertTaskEntity(converter(_task.value))
+                    val savedTaskId = realRepository.insertTaskEntity(converter(_task.value))
+                    scheduler.schedule(_task.value.copy(id = savedTaskId.toInt()))
                 }
             }
         }
     }
 
     private fun converter(task: Task): TaskEntity = TaskEntity(
+        id = task.id,
         title = task.title,
         description = task.description,
         expireTime = task.expireTime,
