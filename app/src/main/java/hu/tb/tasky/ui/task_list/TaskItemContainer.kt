@@ -14,6 +14,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.style.TextDecoration
 import hu.tb.tasky.model.TaskEntity
 
 @Composable
@@ -50,6 +51,7 @@ fun TaskItemContainer(
                 Text(
                     text = taskItem.title,
                     fontSize = MaterialTheme.typography.titleLarge.fontSize,
+                    textDecoration = if(isDone) TextDecoration.LineThrough else TextDecoration.None
                 )
                 Divider(Modifier.padding(top = 4.dp, bottom = 4.dp))
                 Text(
