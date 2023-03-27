@@ -6,15 +6,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.style.TextDecoration
 import hu.tb.tasky.model.TaskEntity
 
 @Composable
@@ -22,10 +18,9 @@ fun TaskItemContainer(
     modifier: Modifier = Modifier,
     taskItem: TaskEntity,
     onDeleteTask: () -> Unit,
+    isDone: Boolean,
+    onDoneClick: (Boolean) -> Unit,
 ) {
-
-    var isDone by rememberSaveable { mutableStateOf(false) }
-
     val formattedDate = taskItem.expireDate?.let { date ->
         taskItem.expireTime?.let { time ->
             "${date.monthValue.toString().padStart(2, '0')}. " +
@@ -69,7 +64,7 @@ fun TaskItemContainer(
                 Row {
                     Checkbox(
                         checked = isDone,
-                        onCheckedChange = { isDone = it },
+                        onCheckedChange = onDoneClick,
                         modifier = Modifier.padding(0.dp)
                     )
                     IconButton(onClick = onDeleteTask) {
@@ -95,5 +90,5 @@ fun TaskItemContainerPreview() {
         expireTime = null,
         initialChecked = false,
     )
-    TaskItemContainer(taskItem = testTask, onDeleteTask = {})
+    TaskItemContainer(taskItem = testTask, onDeleteTask = {}, onDoneClick = {}, isDone = false)
 }

@@ -10,6 +10,9 @@ interface TaskEntityDAO {
     @Query("SELECT * FROM TaskEntity")
     fun getTaskEntities(): Flow<List<TaskEntity>>
 
+    @Query("SELECT * FROM TaskEntity WHERE initialChecked = true")
+    fun getDoneTaskEntities(): Flow<List<TaskEntity>>
+
     @Query("SELECT * FROM TaskEntity WHERE id = :id")
     suspend fun getTaskEntityById(id: Int): TaskEntity?
 

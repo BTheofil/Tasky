@@ -1,5 +1,6 @@
 package hu.tb.tasky.ui.task_list
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -15,12 +16,12 @@ class TaskListViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    val saveState = savedStateHandle.getStateFlow<List<TaskEntity>>("TaskEntity", emptyList())
+    val allTaskList = savedStateHandle.getStateFlow<List<TaskEntity>>(ALL_TASK_KEY, emptyList())
 
     init {
         viewModelScope.launch {
             realRepository.getTaskEntities().collect {
-                savedStateHandle["TaskEntity"] = it
+                savedStateHandle[ALL_TASK_KEY] = it
             }
         }
     }
@@ -32,7 +33,27 @@ class TaskListViewModel @Inject constructor(
                     realRepository.deleteTask(event.task)
                 }
             }
+            is TaskListEvent.ShowDoneTask -> {
+                viewModelScope.launch {
+                    realRepository.getDoneTaskEntities().collect {
+                        Log.d("MYTAG", it.size.toString())
+                    }
+                }
+            }
+            is TaskListEvent.OnDoneClick -> {
+                viewModelScope.launch {
+                    realRepository.insertTaskEntity(
+                        event.task.copy(
+                            initialChecked = event.isDone
+                        )
+                    )
+                }
+            }
         }
+    }
+
+    companion object{
+        const val ALL_TASK_KEY = "TaskEntity"
     }
 
 }
