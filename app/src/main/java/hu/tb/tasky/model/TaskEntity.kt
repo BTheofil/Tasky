@@ -15,5 +15,5 @@ data class TaskEntity(
     val description: String,
     val expireDate: LocalDate?,
     val expireTime: LocalTime?,
-    val initialChecked: Boolean,
+    val isTaskDone: Boolean,
 ): Parcelable

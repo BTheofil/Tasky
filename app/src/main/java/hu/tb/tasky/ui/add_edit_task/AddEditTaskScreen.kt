@@ -35,7 +35,6 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.SideEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddEditTaskScreen(
     navController: NavController,
@@ -52,7 +51,12 @@ fun AddEditTaskScreen(
     }
 
     Scaffold(
-        topBar = { TopBar(viewModel.task.value, navController) },
+        topBar = {
+            TopBar(
+                viewModel.task.value,
+                navController
+            ) { viewModel.onEvent(AddEditTaskEvent.OnDeleteClick) }
+        },
     ) { contentPadding ->
         Column(
             modifier = Modifier
@@ -90,7 +94,11 @@ fun AddEditTaskScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(taskItem: Task, navController: NavController) {
+fun TopBar(
+    taskItem: Task,
+    navController: NavController,
+    OnDeleteClick: () -> Unit,
+) {
     TopAppBar(
         title = {
             if (taskItem.id == null) {
@@ -106,6 +114,19 @@ fun TopBar(taskItem: Task, navController: NavController) {
                 )
             }
         },
+        actions = {
+            if(taskItem.id != null){
+                IconButton(onClick = {
+                    OnDeleteClick()
+                    navController.popBackStack()
+                }) {
+                    Icon(
+                        painter = painterResource(R.drawable.baseline_delete_outline_24),
+                        contentDescription = "Delete task"
+                    )
+                }
+            }
+        }
     )
 }
 

@@ -1,6 +1,5 @@
 package hu.tb.tasky.ui.task_list
 
-import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,7 +12,7 @@ import javax.inject.Inject
 @HiltViewModel
 class TaskListViewModel @Inject constructor(
     private val realRepository: TaskEntityRepository,
-    savedStateHandle: SavedStateHandle
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     val allTaskList = savedStateHandle.getStateFlow<List<TaskEntity>>(ALL_TASK_KEY, emptyList())
@@ -28,23 +27,11 @@ class TaskListViewModel @Inject constructor(
 
     fun onEvent(event: TaskListEvent){
         when(event){
-            is TaskListEvent.OnDeleteClick -> {
-                viewModelScope.launch {
-                    realRepository.deleteTask(event.task)
-                }
-            }
-            is TaskListEvent.ShowDoneTask -> {
-                viewModelScope.launch {
-                    realRepository.getDoneTaskEntities().collect {
-                        Log.d("MYTAG", it.size.toString())
-                    }
-                }
-            }
             is TaskListEvent.OnDoneClick -> {
                 viewModelScope.launch {
                     realRepository.insertTaskEntity(
                         event.task.copy(
-                            initialChecked = event.isDone
+                            isTaskDone = event.isDone
                         )
                     )
                 }
@@ -53,7 +40,7 @@ class TaskListViewModel @Inject constructor(
     }
 
     companion object{
-        const val ALL_TASK_KEY = "TaskEntity"
+        const val ALL_TASK_KEY = "TaskEntities"
     }
 
 }

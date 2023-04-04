@@ -86,6 +86,11 @@ class AddEditTaskViewModel @Inject constructor(
                     scheduler.schedule(_task.value.copy(id = savedTaskId.toInt()))
                 }
             }
+            is AddEditTaskEvent.OnDeleteClick -> {
+                viewModelScope.launch {
+                    realRepository.deleteTask(converter(_task.value))
+                }
+            }
         }
     }
 
@@ -95,7 +100,7 @@ class AddEditTaskViewModel @Inject constructor(
         description = task.description,
         expireTime = task.expireTime,
         expireDate = task.expireDate,
-        initialChecked = task.initialChecked
+        isTaskDone = task.initialChecked
     )
 
 }
