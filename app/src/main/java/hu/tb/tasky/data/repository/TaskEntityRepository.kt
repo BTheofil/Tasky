@@ -8,9 +8,11 @@ class TaskEntityRepository(
     private val dao: TaskEntityDAO
 ) {
 
-    fun getTaskEntities(): Flow<List<TaskEntity>> = dao.getTaskEntities()
+    //fun getTaskEntities(): Flow<List<TaskEntity>> = dao.getTaskEntities()
 
     fun getDoneTaskEntities(): Flow<List<TaskEntity>> = dao.getDoneTaskEntities()
+
+    fun getOngoingTaskEntities(): Flow<List<TaskEntity>> = dao.getOngoingTaskEntities()
 
     suspend fun insertTaskEntity(taskEntity: TaskEntity): Long = dao.insertTaskEntity(taskEntity)
 

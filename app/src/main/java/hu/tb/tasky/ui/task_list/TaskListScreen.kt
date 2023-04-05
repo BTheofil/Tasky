@@ -31,7 +31,8 @@ fun TaskListScreen(
     navController: NavController
 ) {
     val scope = rememberCoroutineScope()
-    val items: List<TaskEntity> by taskListViewModel.allTaskList.collectAsState()
+    val ongoingTaskList: List<TaskEntity> by taskListViewModel.ongoingTaskList.collectAsState()
+    val doneTaskList: List<TaskEntity> by taskListViewModel.doneTaskList.collectAsState()
     val pagerState = rememberPagerState(initialPage = ONGOING_TASKS)
     val tabTitleNames = listOf("Done Tasks", "Ongoing")
 
@@ -60,7 +61,14 @@ fun TaskListScreen(
                     )
                 }
             }
-            TabContent(tabTitleNames, items, taskListViewModel, navController, pagerState)
+            TabContent(
+                tabTitleNames,
+                ongoingTaskList,
+                doneTaskList,
+                taskListViewModel,
+                navController,
+                pagerState,
+            )
         }
     }
 }
@@ -69,10 +77,11 @@ fun TaskListScreen(
 @Composable
 fun TabContent(
     tabList: List<String>,
-    items: List<TaskEntity>,
+    ongoingTaskList: List<TaskEntity>,
+    doneTaskList: List<TaskEntity>,
     taskListViewModel: TaskListViewModel,
     navController: NavController,
-    state: PagerState
+    state: PagerState,
 ) {
     HorizontalPager(
         pageCount = tabList.size,
@@ -80,11 +89,15 @@ fun TabContent(
     ) { index ->
         when (index) {
             0 -> {
-                DoneTasks()
+                TaskListContent(
+                    items = doneTaskList,
+                    navController = navController,
+                    taskListViewModel = taskListViewModel,
+                )
             }
             1 -> {
-                OngoingTasks(
-                    items = items,
+                TaskListContent(
+                    items = ongoingTaskList,
                     navController = navController,
                     taskListViewModel = taskListViewModel,
                 )
@@ -94,18 +107,11 @@ fun TabContent(
 }
 
 @Composable
-fun DoneTasks() {
-    Column(modifier = Modifier.fillMaxSize()) {
-
-    }
-}
-
-@Composable
-fun OngoingTasks(
+fun TaskListContent(
     items: List<TaskEntity>,
     navController: NavController,
     taskListViewModel: TaskListViewModel
-) {
+){
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier
@@ -136,7 +142,7 @@ fun OngoingTasks(
     }
 }
 
-object TabTitles{
+object TabTitles {
     //const val DONE_TASKS = 0
     const val ONGOING_TASKS = 1
 }

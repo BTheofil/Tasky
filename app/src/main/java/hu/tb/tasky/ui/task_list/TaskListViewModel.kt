@@ -15,12 +15,18 @@ class TaskListViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    val allTaskList = savedStateHandle.getStateFlow<List<TaskEntity>>(ALL_TASK_KEY, emptyList())
+    val ongoingTaskList = savedStateHandle.getStateFlow<List<TaskEntity>>(ONGOING_TASK_KEY, emptyList())
+    val doneTaskList = savedStateHandle.getStateFlow<List<TaskEntity>>(DONE_TASK_KEY, emptyList())
 
     init {
         viewModelScope.launch {
-            realRepository.getTaskEntities().collect {
-                savedStateHandle[ALL_TASK_KEY] = it
+            realRepository.getDoneTaskEntities().collect{
+                savedStateHandle[DONE_TASK_KEY] = it
+            }
+        }
+        viewModelScope.launch {
+            realRepository.getOngoingTaskEntities().collect {
+                savedStateHandle[ONGOING_TASK_KEY] = it
             }
         }
     }
@@ -40,7 +46,8 @@ class TaskListViewModel @Inject constructor(
     }
 
     companion object{
-        const val ALL_TASK_KEY = "TaskEntities"
+        const val ONGOING_TASK_KEY = "OngoingTaskEntities"
+        const val DONE_TASK_KEY = "DoneTaskEntities"
     }
 
 }
