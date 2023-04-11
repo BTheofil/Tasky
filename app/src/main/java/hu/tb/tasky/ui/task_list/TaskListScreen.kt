@@ -106,6 +106,7 @@ fun TabContent(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TaskListContent(
     items: List<TaskEntity>,
@@ -124,6 +125,7 @@ fun TaskListContent(
         ) { task ->
             TaskItemContainer(
                 modifier = Modifier
+                    .animateItemPlacement()
                     .clickable {
                         navController.navigate(RouteNames.ADD_EDIT_SCREEN + "?editedTask=${task.id}")
                     },
