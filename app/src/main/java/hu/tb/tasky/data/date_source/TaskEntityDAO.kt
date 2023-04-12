@@ -10,10 +10,10 @@ interface TaskEntityDAO {
     @Query("SELECT * FROM TaskEntity")
     fun getTaskEntities(): Flow<List<TaskEntity>>
 
-    @Query("SELECT * FROM TaskEntity WHERE isTaskDone = true")
+    @Query("SELECT * FROM TaskEntity WHERE isTaskDone = 1")
     fun getDoneTaskEntities(): Flow<List<TaskEntity>>
 
-    @Query("SELECT * FROM TaskEntity WHERE isTaskDone = false")
+    @Query("SELECT * FROM TaskEntity WHERE isTaskDone = 0")
     fun getOngoingTaskEntities(): Flow<List<TaskEntity>>
 
     @Query("SELECT * FROM TaskEntity WHERE id = :id")
