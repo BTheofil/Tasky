@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Tasky</string>
+    <string name="ongoing">Folyamatban</string>
+    <string name="done">Kész</string>
+    <string name="your_tasks">Feladataid</string>
+    <string name="create_new_task">Hozz létre feladatot</string>
+    <string name="edit_task">Feladat szerkesztése</string>
+    <string name="save">Mentés</string>
+    <string name="cancel">Mégse</string>
+    <string name="select_date">Dátum</string>
+    <string name="select_time">Idő</string>
+    <string name="title">Cím</string>
+    <string name="description_optional">Leírás (Nem közelező)</string>
+    <string name="expire_time">Lejárati dátum</string>
+</resources>

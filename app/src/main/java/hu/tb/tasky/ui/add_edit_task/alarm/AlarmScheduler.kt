@@ -4,7 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import hu.tb.tasky.model.Task
+import hu.tb.tasky.model.TaskEntity
 import org.threeten.bp.LocalDateTime
 import org.threeten.bp.ZoneId
 
@@ -13,12 +13,7 @@ class AlarmScheduler(
 ) {
     private val alarmManager = context.getSystemService(AlarmManager::class.java)
 
-    fun schedule(item: Task) {
-        // todo outsource the null check
-        if(item.expireDate == null && item.expireTime == null){
-            return
-        }
-
+    fun schedule(item: TaskEntity) {
         val intent = Intent(context, AlarmReceiver::class.java)
             .putExtra(INTENT_EXPIRE_TASK_KEY, item)
 
@@ -41,11 +36,11 @@ class AlarmScheduler(
         )
     }
 
-    fun cancel(item: Task) {
+    fun cancel(taskId: Int) {
         alarmManager.cancel(
             PendingIntent.getBroadcast(
                 context,
-                item.id!!,
+                taskId,
                 Intent(context, AlarmReceiver::class.java),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )

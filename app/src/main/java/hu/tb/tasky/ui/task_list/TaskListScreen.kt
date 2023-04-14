@@ -14,9 +14,11 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import hu.tb.tasky.R
 import hu.tb.tasky.model.TaskEntity
 import hu.tb.tasky.ui.components.FloatingActionButtonComponent
 import hu.tb.tasky.ui.components.TopBar
@@ -34,7 +36,7 @@ fun TaskListScreen(
     val ongoingTaskList: List<TaskEntity> by taskListViewModel.ongoingTaskList.collectAsState()
     val doneTaskList: List<TaskEntity> by taskListViewModel.doneTaskList.collectAsState()
     val pagerState = rememberPagerState(initialPage = ONGOING_TASKS)
-    val tabTitleNames = listOf("Done Tasks", "Ongoing")
+    val tabTitleNames = listOf(R.string.done, R.string.ongoing)
 
     Scaffold(
         topBar = { TopBar() },
@@ -55,14 +57,14 @@ fun TaskListScreen(
                         },
                         text = {
                             Text(
-                                text = title,
+                                text = stringResource(id = title),
                             )
                         }
                     )
                 }
             }
             TabContent(
-                tabTitleNames,
+                tabTitleNames.size,
                 ongoingTaskList,
                 doneTaskList,
                 taskListViewModel,
@@ -76,7 +78,7 @@ fun TaskListScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TabContent(
-    tabList: List<String>,
+    tabCount: Int,
     ongoingTaskList: List<TaskEntity>,
     doneTaskList: List<TaskEntity>,
     taskListViewModel: TaskListViewModel,
@@ -84,7 +86,7 @@ fun TabContent(
     state: PagerState,
 ) {
     HorizontalPager(
-        pageCount = tabList.size,
+        pageCount = tabCount,
         state = state
     ) { index ->
         when (index) {

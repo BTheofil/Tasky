@@ -1,40 +1,48 @@
 package hu.tb.tasky.ui.add_edit_task
 
 import android.Manifest
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import android.os.Build
+import android.widget.DatePicker
+import android.widget.TimePicker
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import hu.tb.tasky.R
-import hu.tb.tasky.model.Task
 import org.threeten.bp.LocalDate
 import org.threeten.bp.LocalTime
-import android.app.TimePickerDialog
-import android.widget.TimePicker
-import android.app.DatePickerDialog
-import android.os.Build
-import android.widget.DatePicker
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.runtime.SideEffect
-import androidx.hilt.navigation.compose.hiltViewModel
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AddEditTaskScreen(
     navController: NavController,
@@ -49,11 +57,12 @@ fun AddEditTaskScreen(
             launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
         }
     }
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     Scaffold(
         topBar = {
             TopBar(
-                viewModel.task.value,
+                viewModel.task.value.id,
                 navController
             ) { viewModel.onEvent(AddEditTaskEvent.OnDeleteClick) }
         },
@@ -62,7 +71,13 @@ fun AddEditTaskScreen(
             modifier = Modifier
                 .padding(top = contentPadding.calculateTopPadding())
                 .padding(horizontal = 16.dp)
-                .fillMaxSize(),
+                .fillMaxSize()
+                .clickable(
+                    indication = null,
+                    interactionSource = remember { MutableInteractionSource() }
+                ) {
+                    keyboardController?.hide()
+                },
             verticalArrangement = Arrangement.SpaceBetween
         ) {
             AddEditForm(
@@ -80,11 +95,16 @@ fun AddEditTaskScreen(
                     val selectedTime = LocalTime.of(hourOfDay, minute)
                     viewModel.onEvent(AddEditTaskEvent.OnTimeChange(selectedTime))
                 },
+                viewModel.task.value.isTitleError
             )
             Buttons(
                 OnSaveClicked = {
-                    viewModel.onEvent(AddEditTaskEvent.Save)
-                    navController.popBackStack()
+                    viewModel.Save {
+                        if (it) {
+                            navController.popBackStack()
+                        }
+                    }
+
                 },
                 OnCancelClicked = { navController.popBackStack() }
             )
@@ -95,16 +115,16 @@ fun AddEditTaskScreen(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
-    taskItem: Task,
+    taskId: Int?,
     navController: NavController,
     OnDeleteClick: () -> Unit,
 ) {
     TopAppBar(
         title = {
-            if (taskItem.id == null) {
-                Text(text = "Create New Task")
+            if (taskId == null) {
+                Text(text = stringResource(id = R.string.create_new_task))
             } else {
-                Text(text = "Edit Task")
+                Text(text = stringResource(id = R.string.edit_task))
             }
         },
         navigationIcon = {
@@ -115,7 +135,7 @@ fun TopBar(
             }
         },
         actions = {
-            if(taskItem.id != null){
+            if (taskId != null) {
                 IconButton(onClick = {
                     OnDeleteClick()
                     navController.popBackStack()
@@ -140,6 +160,7 @@ fun AddEditForm(
     OnDateChange: (DatePicker, Int, Int, Int) -> Unit,
     TimeValue: LocalTime?,
     OnTimeChange: (TimePicker, Int, Int) -> Unit,
+    TitleErrorState: Boolean,
 ) {
     Column {
         Box(
@@ -153,19 +174,37 @@ fun AddEditForm(
             Column(
                 modifier = Modifier.padding(16.dp)
             ) {
-                BasicTextField(
+                Row(
                     modifier = Modifier
                         .fillMaxWidth(),
-                    value = TitleValue,
-                    onValueChange = OnTitleChange,
-                    decorationBox = { innerTextField ->
-                        if (TitleValue.isEmpty()) {
-                            Text(
-                                text = "Title", color = Color.LightGray
-                            )
-                        }
-                        innerTextField()
-                    })
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    BasicTextField(
+                        modifier = Modifier.weight(0.8f),
+                        value = TitleValue,
+                        onValueChange = OnTitleChange,
+                        textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
+                        maxLines = 1,
+                        singleLine = true,
+                        decorationBox = { innerTextField ->
+                            if (TitleValue.isEmpty()) {
+                                Text(
+                                    text = stringResource(id = R.string.title), color = Color.LightGray,
+                                )
+                            }
+                            innerTextField()
+                        },
+                        keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                    )
+                    AnimatedVisibility(visible = TitleErrorState) {
+                        Icon(
+                            painter = painterResource(R.drawable.baseline_error_outline_24),
+                            contentDescription = "Error icon",
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
+
                 Divider(
                     modifier = Modifier.fillMaxWidth(),
                     thickness = 1.dp, color = Color.Black
@@ -175,14 +214,17 @@ fun AddEditForm(
                         .fillMaxSize(),
                     value = DescriptionValue,
                     onValueChange = OnDescriptionChange,
+                    textStyle = TextStyle(color = MaterialTheme.colorScheme.onSurface),
                     decorationBox = { innerTextField ->
                         if (DescriptionValue.isEmpty()) {
                             Text(
-                                text = "Description", color = Color.LightGray
+                                text = stringResource(id = R.string.description_optional), color = Color.LightGray
                             )
                         }
                         innerTextField()
-                    })
+                    },
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                )
             }
         }
         Spacer(modifier = Modifier.padding(top = 8.dp))
@@ -195,7 +237,7 @@ fun AddEditForm(
                 contentDescription = "Expire icon",
             )
             Spacer(modifier = Modifier.width(4.dp))
-            Text(text = "Expire time:")
+            Text(text = stringResource(id = R.string.expire_time))
             Spacer(modifier = Modifier.width(8.dp))
             val datePickerDialog = DatePickerDialog(
                 LocalContext.current,
@@ -207,6 +249,7 @@ fun AddEditForm(
             Box(
                 modifier = Modifier
                     .weight(1f)
+                    .width(100.dp)
                     .border(
                         BorderStroke(1.dp, Color.Black),
                         shape = RoundedCornerShape(8.dp)
@@ -218,7 +261,11 @@ fun AddEditForm(
                     .padding(12.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = DateValue?.toString() ?: "Select Date")
+                Text(
+                    text = DateValue?.toString() ?: stringResource(id = R.string.select_date),
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                )
             }
             Spacer(modifier = Modifier.width(8.dp))
             val timePickerDialog = TimePickerDialog(
@@ -238,7 +285,12 @@ fun AddEditForm(
                     .padding(12.dp),
                 contentAlignment = Alignment.Center
             ) {
-                Text(text = TimeValue?.toString() ?: "Select Time")
+                Text(
+                    text = TimeValue?.toString() ?: stringResource(id = R.string.select_time),
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+
+                )
             }
         }
     }
@@ -258,12 +310,12 @@ fun Buttons(
         OutlinedButton(
             onClick = OnCancelClicked
         ) {
-            Text(text = "Cancel")
+            Text(text = stringResource(id = R.string.cancel))
         }
         Button(
             onClick = OnSaveClicked
         ) {
-            Text(text = "Save")
+            Text(text = stringResource(id = R.string.save))
         }
     }
 }

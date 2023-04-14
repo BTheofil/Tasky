@@ -7,7 +7,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.tb.tasky.data.repository.TaskEntityRepository
-import hu.tb.tasky.model.Task
 import hu.tb.tasky.model.TaskEntity
 import hu.tb.tasky.ui.add_edit_task.alarm.AlarmScheduler
 import kotlinx.coroutines.launch
@@ -24,15 +23,17 @@ class AddEditTaskViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _task = mutableStateOf(
-        Task(
+        AddEditTaskState(
             title = "",
             description = "",
             expireDate = null,
             expireTime = null,
             initialChecked = false,
+            isTitleError = false,
+            isDateTimeError = false
         )
     )
-    val task: State<Task> = _task
+    val task: State<AddEditTaskState> = _task
 
     init {
         viewModelScope.launch {
@@ -60,7 +61,7 @@ class AddEditTaskViewModel @Inject constructor(
             }
             is AddEditTaskEvent.OnDateChange -> {
                 if(task.value.id != null){
-                    scheduler.cancel(task.value)
+                    scheduler.cancel(task.value.id!!)
                 }
                 _task.value = task.value.copy(
                     expireDate = LocalDate.parse(
@@ -71,7 +72,7 @@ class AddEditTaskViewModel @Inject constructor(
             }
             is AddEditTaskEvent.OnTimeChange -> {
                 if(task.value.id != null){
-                    scheduler.cancel(task.value)
+                    scheduler.cancel(task.value.id!!)
                 }
                 _task.value = task.value.copy(
                     expireTime = LocalTime.parse(
@@ -81,10 +82,7 @@ class AddEditTaskViewModel @Inject constructor(
                 )
             }
             is AddEditTaskEvent.Save -> {
-                viewModelScope.launch {
-                    val savedTaskId = realRepository.insertTaskEntity(converter(_task.value))
-                    scheduler.schedule(_task.value.copy(id = savedTaskId.toInt()))
-                }
+
             }
             is AddEditTaskEvent.OnDeleteClick -> {
                 viewModelScope.launch {
@@ -94,7 +92,28 @@ class AddEditTaskViewModel @Inject constructor(
         }
     }
 
-    private fun converter(task: Task): TaskEntity = TaskEntity(
+    fun Save(callback: (Boolean) -> Unit) {
+        viewModelScope.launch {
+            if (_task.value.title == "") {
+                _task.value = task.value.copy(
+                    isTitleError = true
+                )
+                callback(false)
+            } else {
+                _task.value = task.value.copy(
+                    isTitleError = false
+                )
+                val savedTaskId = realRepository.insertTaskEntity(converter(_task.value))
+                if (_task.value.expireTime != null && _task.value.expireDate != null) {
+                    scheduler.schedule(converter(_task.value.copy(id = savedTaskId.toInt())))
+                }
+                callback(true)
+            }
+        }
+    }
+
+
+    private fun converter(task: AddEditTaskState): TaskEntity = TaskEntity(
         id = task.id,
         title = task.title,
         description = task.description,
