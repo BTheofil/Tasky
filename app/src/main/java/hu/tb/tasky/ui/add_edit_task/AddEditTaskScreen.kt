@@ -213,7 +213,10 @@ fun AddEditForm(
                     .weight(1f)
                     .width(100.dp)
                     .border(
-                        if (IsDateTimeError) BorderStroke(1.dp, Color.Red) else BorderStroke(
+                        if (IsDateTimeError) BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.error
+                        ) else BorderStroke(
                             1.dp,
                             Color.Black
                         ),
@@ -243,7 +246,10 @@ fun AddEditForm(
             Box(
                 modifier = Modifier
                     .border(
-                        if (IsDateTimeError) BorderStroke(1.dp, Color.Red) else BorderStroke(
+                        if (IsDateTimeError) BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.error
+                        ) else BorderStroke(
                             1.dp,
                             Color.Black
                         ),
