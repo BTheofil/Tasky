@@ -9,4 +9,5 @@ sealed class AddEditTaskEvent {
     data class OnDateChange(val date: LocalDate) : AddEditTaskEvent()
     data class OnTimeChange(val time: LocalTime) : AddEditTaskEvent()
     object OnDeleteClick : AddEditTaskEvent()
+    object OnClearDateTimeClick : AddEditTaskEvent()
 }

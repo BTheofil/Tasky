@@ -96,7 +96,8 @@ fun AddEditTaskScreen(
                     viewModel.onEvent(AddEditTaskEvent.OnTimeChange(selectedTime))
                 },
                 TitleErrorState = viewModel.task.value.isTitleError,
-                IsDateTimeError = viewModel.task.value.isDateTimeError
+                IsDateTimeError = viewModel.task.value.isDateTimeError,
+                OnDateTimeClear = { viewModel.onEvent(AddEditTaskEvent.OnClearDateTimeClick) }
             )
             ButtonsSelection(
                 OnSaveClicked = {
@@ -123,6 +124,7 @@ fun AddEditForm(
     OnTimeChange: (TimePicker, Int, Int) -> Unit,
     TitleErrorState: Boolean,
     IsDateTimeError: Boolean,
+    OnDateTimeClear: () -> Unit,
 ) {
     Column {
         Box(
@@ -196,11 +198,6 @@ fun AddEditForm(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(
-                painter = painterResource(R.drawable.outline_schedule_24),
-                contentDescription = "Expire icon",
-            )
-            Spacer(modifier = Modifier.width(4.dp))
             Text(text = stringResource(id = R.string.expire_time))
             Spacer(modifier = Modifier.width(8.dp))
             val datePickerDialog = DatePickerDialog(
@@ -263,6 +260,13 @@ fun AddEditForm(
                     text = TimeValue?.toString() ?: stringResource(id = R.string.select_time),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
+                )
+            }
+            Spacer(modifier = Modifier.width(4.dp))
+            IconButton(onClick = OnDateTimeClear) {
+                Icon(
+                    painter = painterResource(R.drawable.baseline_delete_outline_24),
+                    contentDescription = "Clear date time",
                 )
             }
         }

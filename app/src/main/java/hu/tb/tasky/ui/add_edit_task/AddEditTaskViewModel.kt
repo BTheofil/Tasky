@@ -56,9 +56,10 @@ class AddEditTaskViewModel @Inject constructor(
     fun onEvent(event: AddEditTaskEvent) {
         when (event) {
             is AddEditTaskEvent.OnTitleChange -> _task.value = task.value.copy(title = event.title)
-            is AddEditTaskEvent.OnDescriptionChange -> _task.value = task.value.copy(description = event.description)
+            is AddEditTaskEvent.OnDescriptionChange -> _task.value =
+                task.value.copy(description = event.description)
             is AddEditTaskEvent.OnDateChange -> {
-                if(task.value.id != null){
+                if (task.value.id != null) {
                     scheduler.cancel(task.value.id!!)
                 }
                 _task.value = task.value.copy(
@@ -69,7 +70,7 @@ class AddEditTaskViewModel @Inject constructor(
                 )
             }
             is AddEditTaskEvent.OnTimeChange -> {
-                if(task.value.id != null){
+                if (task.value.id != null) {
                     scheduler.cancel(task.value.id!!)
                 }
                 _task.value = task.value.copy(
@@ -80,9 +81,21 @@ class AddEditTaskViewModel @Inject constructor(
                 )
             }
             is AddEditTaskEvent.OnDeleteClick -> {
+                if (task.value.id != null) {
+                    scheduler.cancel(task.value.id!!)
+                }
                 viewModelScope.launch {
                     realRepository.deleteTask(converter(_task.value))
                 }
+            }
+            is AddEditTaskEvent.OnClearDateTimeClick -> {
+                if (task.value.id != null) {
+                    scheduler.cancel(task.value.id!!)
+                }
+                _task.value = task.value.copy(
+                    expireDate = null,
+                    expireTime = null,
+                )
             }
         }
     }
@@ -95,7 +108,7 @@ class AddEditTaskViewModel @Inject constructor(
         val hasError = listOf(
             titleResult,
             dateTimeResult
-            ).any { !it.result }
+        ).any { !it.result }
 
         if (hasError) {
             _task.value = task.value.copy(
@@ -107,7 +120,7 @@ class AddEditTaskViewModel @Inject constructor(
 
         viewModelScope.launch {
             val savedTaskId = realRepository.insertTaskEntity(converter(_task.value))
-            if(_task.value.expireDate != null){
+            if (_task.value.expireDate != null) {
                 scheduler.schedule(converter(_task.value.copy(id = savedTaskId.toInt())))
             }
         }
