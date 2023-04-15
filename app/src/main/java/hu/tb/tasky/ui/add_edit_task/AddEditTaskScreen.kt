@@ -17,8 +17,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -39,6 +37,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import hu.tb.tasky.R
+import hu.tb.tasky.ui.components.ButtonsSelection
+import hu.tb.tasky.ui.components.TopBar
 import org.threeten.bp.LocalDate
 import org.threeten.bp.LocalTime
 
@@ -97,14 +97,11 @@ fun AddEditTaskScreen(
                 },
                 viewModel.task.value.isTitleError
             )
-            Buttons(
+            ButtonsSelection(
                 OnSaveClicked = {
-                    viewModel.Save {
-                        if (it) {
-                            navController.popBackStack()
-                        }
+                    if (viewModel.save()) {
+                        navController.popBackStack()
                     }
-
                 },
                 OnCancelClicked = { navController.popBackStack() }
             )
@@ -112,43 +109,6 @@ fun AddEditTaskScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TopBar(
-    taskId: Int?,
-    navController: NavController,
-    OnDeleteClick: () -> Unit,
-) {
-    TopAppBar(
-        title = {
-            if (taskId == null) {
-                Text(text = stringResource(id = R.string.create_new_task))
-            } else {
-                Text(text = stringResource(id = R.string.edit_task))
-            }
-        },
-        navigationIcon = {
-            IconButton(onClick = { navController.popBackStack() }) {
-                Icon(
-                    imageVector = Icons.Filled.ArrowBack, contentDescription = "Back Arrow"
-                )
-            }
-        },
-        actions = {
-            if (taskId != null) {
-                IconButton(onClick = {
-                    OnDeleteClick()
-                    navController.popBackStack()
-                }) {
-                    Icon(
-                        painter = painterResource(R.drawable.baseline_delete_outline_24),
-                        contentDescription = "Delete task"
-                    )
-                }
-            }
-        }
-    )
-}
 
 @Composable
 fun AddEditForm(
@@ -189,7 +149,8 @@ fun AddEditForm(
                         decorationBox = { innerTextField ->
                             if (TitleValue.isEmpty()) {
                                 Text(
-                                    text = stringResource(id = R.string.title), color = Color.LightGray,
+                                    text = stringResource(id = R.string.title),
+                                    color = Color.LightGray,
                                 )
                             }
                             innerTextField()
@@ -218,7 +179,8 @@ fun AddEditForm(
                     decorationBox = { innerTextField ->
                         if (DescriptionValue.isEmpty()) {
                             Text(
-                                text = stringResource(id = R.string.description_optional), color = Color.LightGray
+                                text = stringResource(id = R.string.description_optional),
+                                color = Color.LightGray
                             )
                         }
                         innerTextField()
@@ -242,10 +204,11 @@ fun AddEditForm(
             val datePickerDialog = DatePickerDialog(
                 LocalContext.current,
                 OnDateChange,
-                LocalDate.now().year,
-                LocalDate.now().month.value,
-                LocalDate.now().dayOfMonth,
+                DateValue?.year ?: LocalDate.now().year,
+                (DateValue?.month?.value?.minus(1)) ?: (LocalDate.now().month.value - 1),
+                DateValue?.dayOfMonth ?: LocalDate.now().dayOfMonth,
             )
+            datePickerDialog.datePicker.minDate = System.currentTimeMillis()
             Box(
                 modifier = Modifier
                     .weight(1f)
@@ -270,7 +233,10 @@ fun AddEditForm(
             Spacer(modifier = Modifier.width(8.dp))
             val timePickerDialog = TimePickerDialog(
                 LocalContext.current,
-                OnTimeChange, LocalTime.now().hour, LocalTime.now().minute, false
+                OnTimeChange,
+                TimeValue?.hour ?: LocalTime.now().hour,
+                TimeValue?.minute ?: LocalTime.now().minute,
+                false,
             )
             Box(
                 modifier = Modifier
@@ -290,32 +256,8 @@ fun AddEditForm(
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
 
-                )
+                    )
             }
-        }
-    }
-}
-
-@Composable
-fun Buttons(
-    OnSaveClicked: () -> Unit,
-    OnCancelClicked: () -> Unit,
-) {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(bottom = 32.dp),
-        horizontalArrangement = Arrangement.SpaceAround,
-    ) {
-        OutlinedButton(
-            onClick = OnCancelClicked
-        ) {
-            Text(text = stringResource(id = R.string.cancel))
-        }
-        Button(
-            onClick = OnSaveClicked
-        ) {
-            Text(text = stringResource(id = R.string.save))
         }
     }
 }

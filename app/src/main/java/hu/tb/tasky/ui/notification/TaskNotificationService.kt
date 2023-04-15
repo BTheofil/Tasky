@@ -7,14 +7,14 @@ import android.content.Intent
 import androidx.core.app.NotificationCompat
 import hu.tb.tasky.MainActivity
 import hu.tb.tasky.R
-import hu.tb.tasky.model.Task
+import hu.tb.tasky.model.TaskEntity
 
 class TaskNotificationService(
     private val context: Context
 ) {
     private val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    fun showNotification(task: Task) {
+    fun showNotification(task: TaskEntity) {
         val activityIntent = Intent(context, MainActivity::class.java) //define what activity open when user tap the notification
         val activityPendingIntent = PendingIntent.getActivity(
             context,

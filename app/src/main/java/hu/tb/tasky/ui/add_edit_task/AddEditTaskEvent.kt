@@ -8,6 +8,5 @@ sealed class AddEditTaskEvent {
     data class OnDescriptionChange(val description: String) : AddEditTaskEvent()
     data class OnDateChange(val date: LocalDate) : AddEditTaskEvent()
     data class OnTimeChange(val time: LocalTime) : AddEditTaskEvent()
-    object Save : AddEditTaskEvent()
     object OnDeleteClick : AddEditTaskEvent()
 }

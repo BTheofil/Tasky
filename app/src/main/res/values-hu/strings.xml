@@ -11,6 +11,6 @@
     <string name="select_date">Dátum</string>
     <string name="select_time">Idő</string>
     <string name="title">Cím</string>
-    <string name="description_optional">Leírás (Nem közelező)</string>
+    <string name="description_optional">Leírás (Nem kötelező)</string>
     <string name="expire_time">Lejárati dátum</string>
 </resources>

@@ -7,6 +7,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.tb.tasky.data.repository.TaskEntityRepository
+import hu.tb.tasky.domain.use_case.ValidateDateTime
+import hu.tb.tasky.domain.use_case.ValidateTaskTitle
 import hu.tb.tasky.model.TaskEntity
 import hu.tb.tasky.ui.add_edit_task.alarm.AlarmScheduler
 import kotlinx.coroutines.launch
@@ -53,12 +55,8 @@ class AddEditTaskViewModel @Inject constructor(
 
     fun onEvent(event: AddEditTaskEvent) {
         when (event) {
-            is AddEditTaskEvent.OnTitleChange -> {
-                _task.value = task.value.copy(title = event.title)
-            }
-            is AddEditTaskEvent.OnDescriptionChange -> {
-                _task.value = task.value.copy(description = event.description)
-            }
+            is AddEditTaskEvent.OnTitleChange -> _task.value = task.value.copy(title = event.title)
+            is AddEditTaskEvent.OnDescriptionChange -> _task.value = task.value.copy(description = event.description)
             is AddEditTaskEvent.OnDateChange -> {
                 if(task.value.id != null){
                     scheduler.cancel(task.value.id!!)
@@ -81,9 +79,6 @@ class AddEditTaskViewModel @Inject constructor(
                     )
                 )
             }
-            is AddEditTaskEvent.Save -> {
-
-            }
             is AddEditTaskEvent.OnDeleteClick -> {
                 viewModelScope.launch {
                     realRepository.deleteTask(converter(_task.value))
@@ -92,24 +87,31 @@ class AddEditTaskViewModel @Inject constructor(
         }
     }
 
-    fun Save(callback: (Boolean) -> Unit) {
+    fun save(): Boolean {
+
+        val titleResult = ValidateTaskTitle().execute(_task.value)
+        val dateTimeResult = ValidateDateTime().execute(_task.value)
+
+        val hasError = listOf(
+            titleResult,
+            dateTimeResult
+            ).any { !it.result }
+
+        if (hasError) {
+            _task.value = task.value.copy(
+                isTitleError = !titleResult.result,
+                isDateTimeError = !titleResult.result,
+            )
+            return false
+        }
+
         viewModelScope.launch {
-            if (_task.value.title == "") {
-                _task.value = task.value.copy(
-                    isTitleError = true
-                )
-                callback(false)
-            } else {
-                _task.value = task.value.copy(
-                    isTitleError = false
-                )
-                val savedTaskId = realRepository.insertTaskEntity(converter(_task.value))
-                if (_task.value.expireTime != null && _task.value.expireDate != null) {
-                    scheduler.schedule(converter(_task.value.copy(id = savedTaskId.toInt())))
-                }
-                callback(true)
+            val savedTaskId = realRepository.insertTaskEntity(converter(_task.value))
+            if(_task.value.expireDate != null){
+                scheduler.schedule(converter(_task.value.copy(id = savedTaskId.toInt())))
             }
         }
+        return true
     }
 
 
