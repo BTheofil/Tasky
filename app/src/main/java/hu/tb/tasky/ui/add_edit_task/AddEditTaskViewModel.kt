@@ -100,7 +100,7 @@ class AddEditTaskViewModel @Inject constructor(
         if (hasError) {
             _task.value = task.value.copy(
                 isTitleError = !titleResult.result,
-                isDateTimeError = !titleResult.result,
+                isDateTimeError = !dateTimeResult.result,
             )
             return false
         }

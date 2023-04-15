@@ -28,7 +28,7 @@ class TaskNotificationService(
             .setContentIntent(activityPendingIntent)
             .build()
 
-        notificationManager.notify(1, notification)
+        notificationManager.notify(task.id!!, notification)
     }
 
     companion object {

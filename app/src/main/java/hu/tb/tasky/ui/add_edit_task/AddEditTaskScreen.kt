@@ -95,7 +95,8 @@ fun AddEditTaskScreen(
                     val selectedTime = LocalTime.of(hourOfDay, minute)
                     viewModel.onEvent(AddEditTaskEvent.OnTimeChange(selectedTime))
                 },
-                viewModel.task.value.isTitleError
+                TitleErrorState = viewModel.task.value.isTitleError,
+                IsDateTimeError = viewModel.task.value.isDateTimeError
             )
             ButtonsSelection(
                 OnSaveClicked = {
@@ -121,6 +122,7 @@ fun AddEditForm(
     TimeValue: LocalTime?,
     OnTimeChange: (TimePicker, Int, Int) -> Unit,
     TitleErrorState: Boolean,
+    IsDateTimeError: Boolean,
 ) {
     Column {
         Box(
@@ -214,7 +216,10 @@ fun AddEditForm(
                     .weight(1f)
                     .width(100.dp)
                     .border(
-                        BorderStroke(1.dp, Color.Black),
+                        if (IsDateTimeError) BorderStroke(1.dp, Color.Red) else BorderStroke(
+                            1.dp,
+                            Color.Black
+                        ),
                         shape = RoundedCornerShape(8.dp)
                     )
                     .clip(RoundedCornerShape(8.dp))
@@ -241,7 +246,10 @@ fun AddEditForm(
             Box(
                 modifier = Modifier
                     .border(
-                        BorderStroke(1.dp, Color.Black),
+                        if (IsDateTimeError) BorderStroke(1.dp, Color.Red) else BorderStroke(
+                            1.dp,
+                            Color.Black
+                        ),
                         shape = RoundedCornerShape(8.dp)
                     )
                     .clip(RoundedCornerShape(8.dp))
@@ -255,8 +263,7 @@ fun AddEditForm(
                     text = TimeValue?.toString() ?: stringResource(id = R.string.select_time),
                     overflow = TextOverflow.Ellipsis,
                     maxLines = 1,
-
-                    )
+                )
             }
         }
     }
