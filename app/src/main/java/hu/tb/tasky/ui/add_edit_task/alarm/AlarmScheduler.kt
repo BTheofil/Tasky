@@ -21,7 +21,7 @@ class AlarmScheduler(
             AlarmManager.RTC_WAKEUP,
             LocalDateTime.of(
                 item.expireDate!!.year,
-                item.expireDate.monthValue - 1,
+                item.expireDate.monthValue,
                 item.expireDate.dayOfMonth,
                 item.expireTime!!.hour,
                 item.expireTime.minute,
