@@ -1,14 +1,14 @@
 package hu.tb.tasky.ui.task_list
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.constraintlayout.compose.ConstraintLayout
 import hu.tb.tasky.R
 import hu.tb.tasky.model.TaskEntity
 
@@ -29,70 +29,62 @@ fun TaskItemContainer(
         }
     }
 
-    ConstraintLayout(
+    Row(
         modifier = modifier
-            .fillMaxWidth()
     ) {
-        val (Checkbox,
-            ContentInfo,
-            TaskExpireDateTime,
-            AlarmIcon,
-            Divider
-        ) = createRefs()
-        Checkbox(
-            modifier = Modifier.constrainAs(Checkbox) {
-                start.linkTo(parent.start)
-                top.linkTo(parent.top)
-                bottom.linkTo(Divider.top)
-            },
-            checked = isDone,
-            onCheckedChange = onDoneClick,
-        )
-        Column(modifier = Modifier
-            .constrainAs(ContentInfo) {
-                start.linkTo(Checkbox.end)
-                top.linkTo(parent.top)
-                bottom.linkTo(Divider.bottom)
-            },
+        Column(
+            modifier = Modifier
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            Checkbox(
+                checked = isDone,
+                onCheckedChange = onDoneClick,
+            )
+        }
+        Column(
+            modifier = Modifier
+                .weight(3f)
+                .fillMaxSize(),
+            verticalArrangement = Arrangement.Center
         ) {
             Text(
                 text = taskItem.title,
                 fontSize = MaterialTheme.typography.titleLarge.fontSize,
-                textDecoration = if (isDone) TextDecoration.LineThrough else TextDecoration.None
+                textDecoration = if (isDone) TextDecoration.LineThrough else TextDecoration.None,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
             )
             if (taskItem.description != "") {
                 Text(
                     text = taskItem.description,
                     fontSize = MaterialTheme.typography.titleSmall.fontSize,
+                    textDecoration = if (isDone) TextDecoration.LineThrough else TextDecoration.None,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 3,
                 )
             }
         }
-        if (formattedDate != null) {
-            Icon(
-                modifier = Modifier.constrainAs(AlarmIcon) {
-                    end.linkTo(TaskExpireDateTime.start)
-                    bottom.linkTo(Divider.top)
-                },
-                painter = painterResource(R.drawable.outline_alarm_24),
-                contentDescription = "Expire icon",
-            )
-            Text(
-                modifier = Modifier.constrainAs(TaskExpireDateTime) {
-                    end.linkTo(parent.end)
-                    bottom.linkTo(Divider.top)
-                },
-                text = "$formattedDate"
-            )
-        }
-        Divider(
-            Modifier
-                .constrainAs(Divider) {
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                    bottom.linkTo(parent.bottom)
+        Column(
+            modifier = Modifier
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.Bottom,
+            horizontalAlignment = Alignment.End
+        ) {
+            Row() {
+                if (formattedDate != null) {
+                    Icon(
+                        painter = painterResource(R.drawable.outline_alarm_24),
+                        contentDescription = "Expire icon",
+                    )
+                    Text(
+                        text = "$formattedDate"
+                    )
                 }
-        )
+            }
+        }
     }
+    Divider()
 }
 
 @Preview

@@ -130,7 +130,8 @@ fun TaskListContent(
                     .animateItemPlacement()
                     .clickable {
                         navController.navigate(RouteNames.ADD_EDIT_SCREEN + "?editedTask=${task.id}")
-                    },
+                    }
+                    .height(IntrinsicSize.Max),
                 taskItem = task,
                 isDone = task.isTaskDone,
                 onDoneClick = {
