@@ -73,7 +73,11 @@ dependencies {
     implementation "androidx.compose.runtime:runtime-livedata:$compose_version"
 
     //date and time handler for api lvl 24 support
-    implementation("com.jakewharton.threetenabp:threetenabp:1.4.4")
+    implementation("com.jakewharton.threetenabp:threetenabp:1.4.6")
+
+    testImplementation('org.threeten:threetenbp:1.6.8') {
+        exclude group: 'com.jakewharton.threetenabp', module: 'threetenabp'
+    }
 
     //navigation
     implementation "androidx.navigation:navigation-compose:2.5.3"
