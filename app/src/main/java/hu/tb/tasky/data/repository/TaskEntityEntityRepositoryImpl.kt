@@ -1,13 +1,13 @@
 package hu.tb.tasky.data.repository
 
 import hu.tb.tasky.data.date_source.TaskEntityDAO
-import hu.tb.tasky.domain.repository.TaskRepository
+import hu.tb.tasky.domain.repository.TaskEntityRepository
 import hu.tb.tasky.model.TaskEntity
 import kotlinx.coroutines.flow.Flow
 
-class TaskEntityRepository(
+class TaskEntityEntityRepositoryImpl(
     private val dao: TaskEntityDAO
-) : TaskRepository{
+) : TaskEntityRepository {
 
     override fun getTaskEntities(): Flow<List<TaskEntity>> = dao.getTaskEntities()
 

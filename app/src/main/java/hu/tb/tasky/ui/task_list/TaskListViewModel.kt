@@ -4,15 +4,17 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import hu.tb.tasky.data.repository.TaskEntityRepository
+import hu.tb.tasky.data.repository.TaskEntityEntityRepositoryImpl
 import hu.tb.tasky.model.TaskEntity
+import hu.tb.tasky.ui.add_edit_task.alarm.AlarmScheduler
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class TaskListViewModel @Inject constructor(
-    private val realRepository: TaskEntityRepository,
-    private val savedStateHandle: SavedStateHandle
+    private val taskEntityEntityRepository: TaskEntityEntityRepositoryImpl,
+    private val savedStateHandle: SavedStateHandle,
+    private val scheduler: AlarmScheduler,
 ) : ViewModel() {
 
     val ongoingTaskList = savedStateHandle.getStateFlow<List<TaskEntity>>(ONGOING_TASK_KEY, emptyList())
@@ -20,12 +22,12 @@ class TaskListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            realRepository.getDoneTaskEntities().collect{
+            taskEntityEntityRepository.getDoneTaskEntities().collect{
                 savedStateHandle[DONE_TASK_KEY] = it
             }
         }
         viewModelScope.launch {
-            realRepository.getOngoingTaskEntities().collect {
+            taskEntityEntityRepository.getOngoingTaskEntities().collect {
                 savedStateHandle[ONGOING_TASK_KEY] = it
             }
         }
@@ -35,11 +37,14 @@ class TaskListViewModel @Inject constructor(
         when(event){
             is TaskListEvent.OnDoneClick -> {
                 viewModelScope.launch {
-                    realRepository.insertTaskEntity(
+                    val taskId = taskEntityEntityRepository.insertTaskEntity(
                         event.task.copy(
-                            isTaskDone = event.isDone
+                            isTaskDone = event.isDone,
+                            expireDate = null,
+                            expireTime = null,
                         )
                     )
+                    scheduler.cancel(taskId.toInt())
                 }
             }
         }

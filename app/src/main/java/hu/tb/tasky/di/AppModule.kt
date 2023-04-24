@@ -7,7 +7,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import hu.tb.tasky.data.date_source.TaskEntityDatabase
-import hu.tb.tasky.data.repository.TaskEntityRepository
+import hu.tb.tasky.data.repository.TaskEntityEntityRepositoryImpl
 import hu.tb.tasky.ui.add_edit_task.alarm.AlarmScheduler
 import javax.inject.Singleton
 
@@ -28,8 +28,8 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideTaskRepository(db: TaskEntityDatabase): TaskEntityRepository {
-        return TaskEntityRepository(db.taskDao)
+    fun provideTaskRepository(db: TaskEntityDatabase): TaskEntityEntityRepositoryImpl {
+        return TaskEntityEntityRepositoryImpl(db.taskDao)
     }
 
     @Provides
@@ -38,3 +38,4 @@ object AppModule {
         return AlarmScheduler(appContext)
     }
 }
+

@@ -6,7 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import hu.tb.tasky.data.repository.TaskEntityRepository
+import hu.tb.tasky.data.repository.TaskEntityEntityRepositoryImpl
 import hu.tb.tasky.domain.use_case.ValidateDateTime
 import hu.tb.tasky.domain.use_case.ValidateTaskTitle
 import hu.tb.tasky.model.TaskEntity
@@ -21,7 +21,7 @@ import javax.inject.Inject
 class AddEditTaskViewModel @Inject constructor(
     private val scheduler: AlarmScheduler,
     savedStateHandle: SavedStateHandle,
-    private val realRepository: TaskEntityRepository,
+    private val taskEntityEntityRepository: TaskEntityEntityRepositoryImpl,
 ) : ViewModel() {
 
     private val _task = mutableStateOf(
@@ -40,7 +40,7 @@ class AddEditTaskViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             savedStateHandle.get<Int>("editedTask")?.let { taskId ->
-                realRepository.getTaskEntityById(taskId)?.also {
+                taskEntityEntityRepository.getTaskEntityById(taskId)?.also {
                     _task.value = task.value.copy(
                         id = it.id,
                         title = it.title,
@@ -85,7 +85,7 @@ class AddEditTaskViewModel @Inject constructor(
                     scheduler.cancel(task.value.id!!)
                 }
                 viewModelScope.launch {
-                    realRepository.deleteTask(converter(_task.value))
+                    taskEntityEntityRepository.deleteTask(converter(_task.value))
                 }
             }
             is AddEditTaskEvent.OnClearDateTimeClick -> {
@@ -119,7 +119,7 @@ class AddEditTaskViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            val savedTaskId = realRepository.insertTaskEntity(converter(_task.value))
+            val savedTaskId = taskEntityEntityRepository.insertTaskEntity(converter(_task.value))
             if (_task.value.expireDate != null) {
                 scheduler.schedule(converter(_task.value.copy(id = savedTaskId.toInt())))
             }

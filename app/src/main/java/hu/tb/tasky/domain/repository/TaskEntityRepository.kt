@@ -3,7 +3,7 @@ package hu.tb.tasky.domain.repository
 import hu.tb.tasky.model.TaskEntity
 import kotlinx.coroutines.flow.Flow
 
-interface TaskRepository {
+interface TaskEntityRepository {
 
     fun getTaskEntities(): Flow<List<TaskEntity>>
 
