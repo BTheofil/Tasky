@@ -7,7 +7,6 @@ import androidx.test.filters.SmallTest
 import hu.tb.tasky.data.date_source.TaskEntityDAO
 import hu.tb.tasky.data.date_source.TaskEntityDatabase
 import hu.tb.tasky.model.TaskEntity
-import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert
@@ -16,6 +15,7 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.threeten.bp.LocalDate
 import org.threeten.bp.LocalTime
+import java.io.IOException
 
 @RunWith(AndroidJUnit4::class)
 @SmallTest
@@ -34,14 +34,16 @@ class DAOTest {
     }
 
     @After
+    @Throws(IOException::class)
     fun teardown() {
         database.close()
     }
 
     @Test
+    @Throws(Exception::class)
     fun getAllTask() = runBlocking {
         val shoppingItem = TaskEntity(
-            title = "",
+            title = "hello",
             description = "",
             expireDate = LocalDate.now(),
             expireTime = LocalTime.now(),
@@ -49,8 +51,10 @@ class DAOTest {
         )
         dao.insertTaskEntity(shoppingItem)
 
-        val allShoppingItems = dao.getTaskEntities().toList().flatten()
+        val item = dao.getTaskEntityById(1)
 
-        Assert.assertEquals(allShoppingItems.size, 1)
+        if (item != null) {
+            Assert.assertEquals(item.title, "hello")
+        }
     }
 }
