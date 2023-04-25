@@ -4,7 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.AndroidEntryPoint
-import hu.tb.tasky.data.repository.TaskEntityEntityRepositoryImpl
+import hu.tb.tasky.data.repository.TaskEntityRepositoryImpl
 import hu.tb.tasky.domain.use_case.ValidateDateTime
 import hu.tb.tasky.domain.use_case.ValidationResult
 import hu.tb.tasky.model.TaskEntity
@@ -17,7 +17,7 @@ import javax.inject.Inject
 class TaskReloadReceiver : BroadcastReceiver() {
 
     @Inject
-    lateinit var taskEntityEntityRepository: TaskEntityEntityRepositoryImpl
+    lateinit var taskEntityRepository: TaskEntityRepositoryImpl
 
     @Inject
     lateinit var scheduler: AlarmScheduler
@@ -28,7 +28,7 @@ class TaskReloadReceiver : BroadcastReceiver() {
         if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
             runBlocking {
                 launch {
-                    taskEntityEntityRepository.getOngoingTaskEntities().collect { onGoingTaskList ->
+                    taskEntityRepository.getOngoingTaskEntities().collect { onGoingTaskList ->
                         onGoingTaskList.forEach { task ->
                             if (validator.execute(converter(task)) == ValidationResult.SUCCESS) {
                                 scheduler.schedule(task)

@@ -13,4 +13,6 @@
     <string name="title">Cím</string>
     <string name="description_optional">Leírás (Nem kötelező)</string>
     <string name="expire_time">Lejárati dátum</string>
+    <string name="sort_name">Rendezés Név</string>
+    <string name="sort_time">Rendezés Idő</string>
 </resources>

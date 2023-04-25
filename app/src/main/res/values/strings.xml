@@ -13,4 +13,6 @@
     <string name="title">Title</string>
     <string name="description_optional">Description (Optional)</string>
     <string name="expire_time">Expire Time</string>
+    <string name="sort_name">Sort Name</string>
+    <string name="sort_time">Sort Time</string>
 </resources>

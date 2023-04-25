@@ -6,7 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import hu.tb.tasky.data.repository.TaskEntityEntityRepositoryImpl
+import hu.tb.tasky.data.repository.TaskEntityRepositoryImpl
 import hu.tb.tasky.domain.use_case.ValidateDateTime
 import hu.tb.tasky.domain.use_case.ValidateTaskTitle
 import hu.tb.tasky.model.TaskEntity
@@ -21,7 +21,7 @@ import javax.inject.Inject
 class AddEditTaskViewModel @Inject constructor(
     private val scheduler: AlarmScheduler,
     savedStateHandle: SavedStateHandle,
-    private val taskEntityEntityRepository: TaskEntityEntityRepositoryImpl,
+    private val taskEntityEntityRepository: TaskEntityRepositoryImpl,
 ) : ViewModel() {
 
     private val _task = mutableStateOf(

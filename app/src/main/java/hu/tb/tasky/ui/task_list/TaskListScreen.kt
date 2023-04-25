@@ -16,9 +16,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import hu.tb.tasky.R
+import hu.tb.tasky.data.util.Sort
+import hu.tb.tasky.model.SortTask
 import hu.tb.tasky.model.TaskEntity
 import hu.tb.tasky.ui.components.FloatingActionButtonComponent
 import hu.tb.tasky.ui.components.TopBar
@@ -29,17 +31,25 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TaskListScreen(
-    taskListViewModel: TaskListViewModel = hiltViewModel(),
-    navController: NavController
+    taskListState: TaskListState,
+    navController: NavHostController,
+    onEvent: (TaskListEvent) -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    val ongoingTaskList: List<TaskEntity> by taskListViewModel.ongoingTaskList.collectAsState()
-    val doneTaskList: List<TaskEntity> by taskListViewModel.doneTaskList.collectAsState()
     val pagerState = rememberPagerState(initialPage = ONGOING_TASKS)
     val tabTitleNames = listOf(R.string.done, R.string.ongoing)
 
+    val dropDownMenuList = listOf(
+        SortTask(stringResource(id = R.string.sort_name)) { onEvent(TaskListEvent.OnSortButtonClick(Sort.Title)) },
+        SortTask(stringResource(id = R.string.sort_time)) { onEvent(TaskListEvent.OnSortButtonClick(Sort.Date)) },
+    )
+
     Scaffold(
-        topBar = { TopBar() },
+        topBar = {
+            TopBar(
+                dropDownMenuList = dropDownMenuList,
+            )
+        },
         floatingActionButton = { FloatingActionButtonComponent(navController = navController) }
     ) { contentPadding ->
         Column(
@@ -65,9 +75,8 @@ fun TaskListScreen(
             }
             TabContent(
                 tabTitleNames.size,
-                ongoingTaskList,
-                doneTaskList,
-                taskListViewModel,
+                taskListState,
+                onEvent,
                 navController,
                 pagerState,
             )
@@ -79,29 +88,28 @@ fun TaskListScreen(
 @Composable
 fun TabContent(
     tabCount: Int,
-    ongoingTaskList: List<TaskEntity>,
-    doneTaskList: List<TaskEntity>,
-    taskListViewModel: TaskListViewModel,
+    taskListState: TaskListState,
+    onEvent: (TaskListEvent) -> Unit,
     navController: NavController,
-    state: PagerState,
+    pagerState: PagerState,
 ) {
     HorizontalPager(
         pageCount = tabCount,
-        state = state
+        state = pagerState
     ) { index ->
         when (index) {
             0 -> {
                 TaskListContent(
-                    items = doneTaskList,
+                    items = taskListState.doneTaskList,
                     navController = navController,
-                    taskListViewModel = taskListViewModel,
+                    onEvent = onEvent,
                 )
             }
             1 -> {
                 TaskListContent(
-                    items = ongoingTaskList,
+                    items = taskListState.ongoingTaskList,
                     navController = navController,
-                    taskListViewModel = taskListViewModel,
+                    onEvent = onEvent,
                 )
             }
         }
@@ -113,8 +121,8 @@ fun TabContent(
 fun TaskListContent(
     items: List<TaskEntity>,
     navController: NavController,
-    taskListViewModel: TaskListViewModel
-){
+    onEvent: (TaskListEvent) -> Unit
+) {
     LazyColumn(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier
@@ -134,14 +142,7 @@ fun TaskListContent(
                     .height(IntrinsicSize.Max),
                 taskItem = task,
                 isDone = task.isTaskDone,
-                onDoneClick = {
-                    taskListViewModel.onEvent(
-                        TaskListEvent.OnDoneClick(
-                            task,
-                            it
-                        )
-                    )
-                }
+                onDoneClick = { onEvent(TaskListEvent.OnDoneClick(task, it)) }
             )
         }
     }
