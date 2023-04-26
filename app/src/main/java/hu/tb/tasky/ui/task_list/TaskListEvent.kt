@@ -1,6 +1,6 @@
 package hu.tb.tasky.ui.task_list
 
-import hu.tb.tasky.data.util.Sort
+import hu.tb.tasky.domain.util.Sort
 import hu.tb.tasky.model.TaskEntity
 
 sealed class TaskListEvent{
