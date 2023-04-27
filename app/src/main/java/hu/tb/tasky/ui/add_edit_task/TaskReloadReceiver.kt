@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import dagger.hilt.android.AndroidEntryPoint
+import hu.tb.tasky.data.repository.DataStoreProtoRepository
 import hu.tb.tasky.data.repository.TaskEntityRepositoryImpl
 import hu.tb.tasky.domain.use_case.ValidateDateTime
 import hu.tb.tasky.domain.use_case.ValidationResult
@@ -22,16 +23,21 @@ class TaskReloadReceiver : BroadcastReceiver() {
     @Inject
     lateinit var scheduler: AlarmScheduler
 
+    @Inject
+    lateinit var dataStoreProto: DataStoreProtoRepository
+
     private val validator = ValidateDateTime()
 
     override fun onReceive(context: Context?, intent: Intent?) {
         if (intent?.action == Intent.ACTION_BOOT_COMPLETED) {
             runBlocking {
                 launch {
-                    taskEntityRepository.getOngoingTaskEntities().collect { onGoingTaskList ->
-                        onGoingTaskList.forEach { task ->
-                            if (validator.execute(converter(task)) == ValidationResult.SUCCESS) {
-                                scheduler.schedule(task)
+                    dataStoreProto.appSettings.collect{
+                        taskEntityRepository.getOngoingTaskEntities(it.sortBy, it.sortTYPE).collect { onGoingTaskList ->
+                            onGoingTaskList.forEach { task ->
+                                if (validator.execute(converter(task)) == ValidationResult.SUCCESS) {
+                                    scheduler.schedule(task)
+                                }
                             }
                         }
                     }
