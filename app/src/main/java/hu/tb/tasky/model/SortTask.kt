@@ -1,8 +1,9 @@
 package hu.tb.tasky.model
 
-import hu.tb.tasky.domain.util.Sort
+import hu.tb.tasky.domain.util.Order
+import hu.tb.tasky.domain.util.OrderType
 
 data class SortTask(
     val name: String,
-    val onClick: (Sort) -> Unit
+    val onClick: (Order, OrderType) -> Unit
 )

@@ -35,7 +35,8 @@ class MainActivity : ComponentActivity() {
                         TaskListScreen(
                             state,
                             navController,
-                            viewModel::onEvent
+                            viewModel::onEvent,
+                            viewModel.dataStore,
                         )
                     }
                     composable(

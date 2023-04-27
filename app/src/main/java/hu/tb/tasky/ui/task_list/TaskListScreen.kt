@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import hu.tb.tasky.R
+import hu.tb.tasky.data.repository.DataStoreProtoRepository
 import hu.tb.tasky.model.SortTask
 import hu.tb.tasky.model.TaskEntity
 import hu.tb.tasky.ui.components.FloatingActionButtonComponent
@@ -32,21 +33,33 @@ import kotlinx.coroutines.launch
 fun TaskListScreen(
     taskListState: TaskListState,
     navController: NavHostController,
-    onEvent: (TaskListEvent) -> Unit
-) {
+    onEvent: (TaskListEvent) -> Unit,
+    protodata: DataStoreProtoRepository,
+
+    ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(initialPage = ONGOING_TASKS)
     val tabTitleNames = listOf(R.string.done, R.string.ongoing)
 
     val dropDownMenuList = listOf(
-        SortTask(stringResource(id = R.string.sort_name)) { onEvent(TaskListEvent.OnSortButtonClick(it)) },
-        SortTask(stringResource(id = R.string.sort_time)) { onEvent(TaskListEvent.OnSortButtonClick(it)) },
+        SortTask(stringResource(id = R.string.sort_name)) { order, orderType ->
+            onEvent(TaskListEvent.OnSortButtonClick(order, orderType))
+        },
+        SortTask(stringResource(id = R.string.sort_time)) { order, orderType ->
+            onEvent(
+                TaskListEvent.OnSortButtonClick(
+                    order,
+                    orderType
+                )
+            )
+        },
     )
 
     Scaffold(
         topBar = {
             TopBar(
                 dropDownMenuList = dropDownMenuList,
+                protodata,
             )
         },
         floatingActionButton = { FloatingActionButtonComponent(navController = navController) }
