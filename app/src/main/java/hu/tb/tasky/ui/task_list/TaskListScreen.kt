@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
@@ -35,8 +34,7 @@ fun TaskListScreen(
     navController: NavHostController,
     onEvent: (TaskListEvent) -> Unit,
     protodata: DataStoreProtoRepository,
-
-    ) {
+) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(initialPage = ONGOING_TASKS)
     val tabTitleNames = listOf(R.string.done, R.string.ongoing)
@@ -85,44 +83,19 @@ fun TaskListScreen(
                     )
                 }
             }
-            TabContent(
-                tabTitleNames.size,
-                taskListState,
-                onEvent,
-                navController,
-                pagerState,
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-fun TabContent(
-    tabCount: Int,
-    taskListState: TaskListState,
-    onEvent: (TaskListEvent) -> Unit,
-    navController: NavController,
-    pagerState: PagerState,
-) {
-    HorizontalPager(
-        pageCount = tabCount,
-        state = pagerState
-    ) { index ->
-        when (index) {
-            0 -> {
-                TaskListContent(
-                    items = taskListState.doneTaskList,
-                    navController = navController,
-                    onEvent = onEvent,
-                )
-            }
-            1 -> {
-                TaskListContent(
-                    items = taskListState.ongoingTaskList,
-                    navController = navController,
-                    onEvent = onEvent,
-                )
+            HorizontalPager(
+                pageCount = tabTitleNames.size,
+                state = pagerState
+            ) { index ->
+                taskListState.taskMapList.forEach {
+                    if (index == it.key) {
+                        TaskListContent(
+                            items = it.value,
+                            navController = navController,
+                            onEvent = onEvent,
+                        )
+                    }
+                }
             }
         }
     }

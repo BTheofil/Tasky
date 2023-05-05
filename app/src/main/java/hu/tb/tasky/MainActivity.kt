@@ -3,6 +3,8 @@ package hu.tb.tasky
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -31,7 +33,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     composable(MAIN_SCREEN) {
                         val viewModel = hiltViewModel<TaskListViewModel>()
-                        val state = viewModel.state.value
+                        val state by viewModel.state.collectAsState()
                         TaskListScreen(
                             state,
                             navController,
