@@ -29,7 +29,7 @@ class AlarmScheduler(
             ).atZone(ZoneId.systemDefault()).toEpochSecond() * 1000,
             PendingIntent.getBroadcast(
                 context,
-                item.id!!,
+                item.taskId!!,
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )

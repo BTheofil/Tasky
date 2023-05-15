@@ -42,7 +42,7 @@ class AddEditTaskViewModel @Inject constructor(
             savedStateHandle.get<Int>("editedTask")?.let { taskId ->
                 taskEntityEntityRepository.getTaskEntityById(taskId)?.also {
                     _task.value = task.value.copy(
-                        id = it.id,
+                        id = it.taskId,
                         title = it.title,
                         description = it.description,
                         expireDate = it.expireDate,
@@ -129,12 +129,13 @@ class AddEditTaskViewModel @Inject constructor(
 
 
     private fun converter(task: AddEditTaskState): TaskEntity = TaskEntity(
-        id = task.id,
+        taskId = task.id,
         title = task.title,
         description = task.description,
         expireTime = task.expireTime,
         expireDate = task.expireDate,
-        isTaskDone = task.initialChecked
+        isTaskDone = task.initialChecked,
+        listId = -1
     )
 
 }

@@ -116,13 +116,13 @@ fun TaskListContent(
     ) {
         items(
             items = items,
-            key = { task -> task.id!! }
+            key = { task -> task.taskId!! }
         ) { task ->
             TaskItemContainer(
                 modifier = Modifier
                     .animateItemPlacement()
                     .clickable {
-                        navController.navigate(RouteNames.ADD_EDIT_SCREEN + "?editedTask=${task.id}")
+                        navController.navigate(RouteNames.ADD_EDIT_SCREEN + "?editedTask=${task.taskId}")
                     }
                     .height(IntrinsicSize.Max),
                 taskItem = task,

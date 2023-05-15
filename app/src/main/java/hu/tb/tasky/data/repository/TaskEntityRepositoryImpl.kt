@@ -43,7 +43,7 @@ class TaskEntityRepositoryImpl(
                         )
                     }
                     Order.TIME -> {
-                        taskList.sortedBy { it.id }
+                        taskList.sortedBy { it.taskId }
                     }
                 }
             }
@@ -55,7 +55,7 @@ class TaskEntityRepositoryImpl(
                         ).reversed()
                     }
                     Order.TIME -> {
-                        taskList.sortedByDescending { it.id }
+                        taskList.sortedByDescending { it.taskId }
                     }
                 }
             }
