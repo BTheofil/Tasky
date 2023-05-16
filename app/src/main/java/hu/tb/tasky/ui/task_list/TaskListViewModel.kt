@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.tb.tasky.data.repository.DataStoreProtoRepository
 import hu.tb.tasky.data.repository.TaskEntityRepositoryImpl
+import hu.tb.tasky.model.ListEntity
 import hu.tb.tasky.model.TaskEntity
 import hu.tb.tasky.ui.add_edit_task.alarm.AlarmScheduler
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,6 +49,13 @@ class TaskListViewModel @Inject constructor(
                     }
             }
         }
+        viewModelScope.launch {
+            taskEntityRepository.getListWithTask().collect{
+                _state.value = state.value.copy(
+                    listWithTask = it
+                )
+            }
+        }
     }
 
     fun onEvent(event: TaskListEvent) {
@@ -78,6 +86,11 @@ class TaskListViewModel @Inject constructor(
                             updateState()
                         }
                 }
+            }
+            TaskListEvent.OnAddListClick -> {
+                _state.value = state.value.copy(
+                    listNamesList = listOf(ListEntity(name = "egy"), ListEntity(name = "ketto"), ListEntity(name = "harom"), ListEntity(name = "negy"))
+                )
             }
         }
     }

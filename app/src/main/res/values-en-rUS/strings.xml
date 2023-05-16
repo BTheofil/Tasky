@@ -15,4 +15,5 @@
     <string name="expire_time">Expire Time</string>
     <string name="sort_name">Sort Title</string>
     <string name="sort_time">Sort Time</string>
+    <string name="add_new_list">Add new list</string>
 </resources>

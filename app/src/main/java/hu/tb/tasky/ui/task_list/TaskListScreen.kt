@@ -7,10 +7,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.List
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -24,7 +23,6 @@ import hu.tb.tasky.model.TaskEntity
 import hu.tb.tasky.ui.components.FloatingActionButtonComponent
 import hu.tb.tasky.ui.components.TopBar
 import hu.tb.tasky.ui.route.RouteNames
-import hu.tb.tasky.ui.task_list.TabTitles.ONGOING_TASKS
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -33,11 +31,11 @@ fun TaskListScreen(
     taskListState: TaskListState,
     navController: NavHostController,
     onEvent: (TaskListEvent) -> Unit,
-    protodata: DataStoreProtoRepository,
+    protoData: DataStoreProtoRepository,
 ) {
     val scope = rememberCoroutineScope()
-    val pagerState = rememberPagerState(initialPage = ONGOING_TASKS)
-    val tabTitleNames = listOf(R.string.done, R.string.ongoing)
+    val pagerState = rememberPagerState(initialPage = 0)
+    val tabTitleNames = mutableListOf(R.string.done, R.string.ongoing)
 
     val dropDownMenuList = listOf(
         SortTask(stringResource(id = R.string.sort_name)) { order, orderType ->
@@ -57,7 +55,7 @@ fun TaskListScreen(
         topBar = {
             TopBar(
                 dropDownMenuList = dropDownMenuList,
-                protodata,
+                protoData,
             )
         },
         floatingActionButton = { FloatingActionButtonComponent(navController = navController) }
@@ -66,31 +64,70 @@ fun TaskListScreen(
             modifier = Modifier
                 .padding(top = contentPadding.calculateTopPadding()),
         ) {
-            TabRow(selectedTabIndex = pagerState.currentPage) {
-                tabTitleNames.forEachIndexed { index, title ->
-                    Tab(
-                        selected = pagerState.currentPage == index,
-                        onClick = {
-                            scope.launch {
-                                pagerState.animateScrollToPage(index)
+            if (taskListState.listNamesList.size < 4) {
+                TabRow(
+                    selectedTabIndex = pagerState.currentPage
+                ) {
+                    taskListState.listNamesList.forEachIndexed { index, listEntity ->
+                        Tab(
+                            selected = pagerState.currentPage == index,
+                            onClick = {
+                                scope.launch {
+                                    pagerState.animateScrollToPage(index)
+                                }
+                            },
+                            text = {
+                                Text(
+                                    text = listEntity.name,
+                                )
                             }
-                        },
-                        text = {
-                            Text(
-                                text = stringResource(id = title),
-                            )
-                        }
-                    )
+                        )
+                    }
+                    Tab(
+                        selected = true,
+                        onClick = { onEvent(TaskListEvent.OnAddListClick) }
+                    ) {
+                        Icon(Icons.Outlined.List, contentDescription = "asd")
+                    }
+                }
+            } else {
+                ScrollableTabRow(
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    selectedTabIndex = pagerState.currentPage,
+                    edgePadding = 0.dp
+                ) {
+                    taskListState.listNamesList.forEachIndexed { index, listEntity ->
+                        Tab(
+                            selected = pagerState.currentPage == index,
+                            onClick = {
+                                scope.launch {
+                                    pagerState.animateScrollToPage(index)
+                                }
+                            },
+                            text = {
+                                Text(
+                                    text = listEntity.name,
+                                )
+                            }
+                        )
+                    }
+                    Tab(
+                        selected = true,
+                        onClick = { onEvent(TaskListEvent.OnAddListClick) }
+                    ) {
+                        Icon(Icons.Outlined.List, contentDescription = "asd")
+                    }
                 }
             }
             HorizontalPager(
-                pageCount = tabTitleNames.size,
+                pageCount = taskListState.listNamesList.size,
                 state = pagerState
             ) { index ->
-                taskListState.taskMapList.forEach {
-                    if (index == it.key) {
+                taskListState.listWithTask.forEach {
+                    if (index == it.list.listId) {
                         TaskListContent(
-                            items = it.value,
+                            items = it.listOfTask,
                             navController = navController,
                             onEvent = onEvent,
                         )

@@ -33,6 +33,8 @@ class TaskEntityRepositoryImpl(
 
     override suspend fun deleteTask(task: TaskEntity) = dao.deleteTaskEntity(task)
 
+    fun getListWithTask() = dao.getListWithTask()
+
     private fun sortLogic(taskList: List<TaskEntity>, order: Order, orderType: OrderType): List<TaskEntity> {
         when (orderType) {
             OrderType.ASCENDING -> {

@@ -15,4 +15,5 @@
     <string name="expire_time">Lejárati dátum</string>
     <string name="sort_name">Rendezés Név</string>
     <string name="sort_time">Rendezés Idő</string>
+    <string name="add_new_list">Új lista</string>
 </resources>

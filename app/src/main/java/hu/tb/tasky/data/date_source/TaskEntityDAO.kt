@@ -22,6 +22,10 @@ interface TaskEntityDAO {
     suspend fun getTaskEntityById(id: Int): TaskEntity?
 
     @Transaction
+    @Query("SELECT * FROM ListEntity")
+    fun getListWithTask(): Flow<List<ListWithTask>>
+
+    @Transaction
     @Query("SELECT * FROM ListEntity WHERE listId = :listId")
     suspend fun getSchoolWithStudents(listId: String): List<ListWithTask>
 
