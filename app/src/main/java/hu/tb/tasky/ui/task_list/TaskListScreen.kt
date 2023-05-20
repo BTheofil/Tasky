@@ -59,7 +59,12 @@ fun TaskListScreen(
                 protoData,
             )
         },
-        floatingActionButton = { FloatingActionButtonComponent(navController = navController) }
+        floatingActionButton = {
+            FloatingActionButtonComponent(
+                listId = if (taskListState.listEntityList.isEmpty()) -1 else taskListState.listEntityList[pagerState.currentPage].list.listId!!,
+                navController = navController
+            )
+        }
     ) { contentPadding ->
         Column(
             modifier = Modifier
@@ -119,6 +124,7 @@ fun TaskListScreen(
                 modifier = Modifier.fillMaxSize()
             ) {
                 TaskListContent(
+                    listId = taskListState.listEntityList[it].list.listId!!,
                     items = taskListState.listEntityList[it].listOfTask,
                     navController = navController,
                     onEvent = onEvent,
@@ -146,6 +152,7 @@ fun TaskListScreen(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun TaskListContent(
+    listId: Int,
     items: List<TaskEntity>,
     navController: NavController,
     onEvent: (TaskListEvent) -> Unit
@@ -164,7 +171,7 @@ private fun TaskListContent(
                 modifier = Modifier
                     .animateItemPlacement()
                     .clickable {
-                        navController.navigate(RouteNames.ADD_EDIT_SCREEN + "?editedTask=${task.taskId}")
+                        navController.navigate(RouteNames.ADD_EDIT_SCREEN + "/listId=$listId?editedTask=${task.taskId}")
                     }
                     .height(IntrinsicSize.Max),
                 taskItem = task,

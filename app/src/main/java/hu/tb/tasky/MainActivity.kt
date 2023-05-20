@@ -1,6 +1,7 @@
 package hu.tb.tasky
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
@@ -43,12 +44,19 @@ class MainActivity : ComponentActivity() {
                         )
                     }
                     composable(
-                        route = ADD_EDIT_SCREEN + "?editedTask={editedTask}",
-                        arguments = listOf(navArgument(name = "editedTask") {
-                            defaultValue = -1
-                            type = NavType.IntType
-                        })
+                        route = "$ADD_EDIT_SCREEN/listId={listId}?editedTask={editedTask}",
+                        arguments = listOf(
+                            navArgument(name = "editedTask") {
+                                type = NavType.IntType
+                                defaultValue = -1
+                            },
+                            navArgument("listId") {
+                                type = NavType.IntType
+                                defaultValue = -1
+                            }
+                        )
                     ) {
+                        Log.d("MYTAG", it.arguments!!.getInt("listId").toString())
                         AddEditTaskScreen(
                             navController = navController,
                         )

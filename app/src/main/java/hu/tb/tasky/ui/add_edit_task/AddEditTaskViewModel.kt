@@ -20,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class AddEditTaskViewModel @Inject constructor(
     private val scheduler: AlarmScheduler,
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     private val taskEntityEntityRepository: TaskEntityRepositoryImpl,
 ) : ViewModel() {
 
@@ -135,7 +135,7 @@ class AddEditTaskViewModel @Inject constructor(
         expireTime = task.expireTime,
         expireDate = task.expireDate,
         isTaskDone = task.initialChecked,
-        listId = 1
+        listId = savedStateHandle.get<Int>("listId")!!
     )
 
 }
