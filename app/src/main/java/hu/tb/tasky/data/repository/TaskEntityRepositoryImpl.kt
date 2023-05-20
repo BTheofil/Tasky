@@ -1,15 +1,17 @@
 package hu.tb.tasky.data.repository
 
-import hu.tb.tasky.data.date_source.TaskEntityDAO
+import hu.tb.tasky.data.date_source.TaskyDAO
 import hu.tb.tasky.domain.repository.TaskEntityRepository
 import hu.tb.tasky.domain.util.Order
 import hu.tb.tasky.domain.util.OrderType
+import hu.tb.tasky.model.ListEntity
 import hu.tb.tasky.model.TaskEntity
+import hu.tb.tasky.model.relations.ListWithTask
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
 class TaskEntityRepositoryImpl(
-    private val dao: TaskEntityDAO
+    private val dao: TaskyDAO
 ) : TaskEntityRepository {
 
     override fun getTaskEntities(): Flow<List<TaskEntity>> = dao.getTaskEntities()
@@ -20,7 +22,10 @@ class TaskEntityRepositoryImpl(
         }
     }
 
-    override fun getOngoingTaskEntities(order: Order, orderType: OrderType): Flow<List<TaskEntity>> {
+    override fun getOngoingTaskEntities(
+        order: Order,
+        orderType: OrderType
+    ): Flow<List<TaskEntity>> {
         return dao.getOngoingTaskEntities().map { taskList ->
             sortLogic(taskList, order, orderType)
         }
@@ -33,9 +38,23 @@ class TaskEntityRepositoryImpl(
 
     override suspend fun deleteTask(task: TaskEntity) = dao.deleteTaskEntity(task)
 
-    fun getListWithTask() = dao.getListWithTask()
+    suspend fun getAllListsEntityWithTask(
+        order: Order = Order.TIME,
+        orderType: OrderType = OrderType.DESCENDING
+    ): List<ListWithTask> {
+        return dao.getAllListsEntityWithTask().map { listWithTask ->
+            val sortedTasks = sortLogic(listWithTask.listOfTask, order, orderType)
+            ListWithTask(listWithTask.list, sortedTasks)
+        }
+    }
 
-    private fun sortLogic(taskList: List<TaskEntity>, order: Order, orderType: OrderType): List<TaskEntity> {
+    suspend fun insertListEntity(listEntity: ListEntity): Long = dao.insertListEntity(listEntity)
+
+    private fun sortLogic(
+        taskList: List<TaskEntity>,
+        order: Order,
+        orderType: OrderType
+    ): List<TaskEntity> {
         when (orderType) {
             OrderType.ASCENDING -> {
                 return when (order) {

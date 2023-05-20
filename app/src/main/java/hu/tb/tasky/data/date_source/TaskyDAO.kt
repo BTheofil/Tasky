@@ -7,7 +7,7 @@ import hu.tb.tasky.model.relations.ListWithTask
 import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface TaskEntityDAO {
+interface TaskyDAO {
 
     @Query("SELECT * FROM TaskEntity")
     fun getTaskEntities(): Flow<List<TaskEntity>>
@@ -23,11 +23,14 @@ interface TaskEntityDAO {
 
     @Transaction
     @Query("SELECT * FROM ListEntity")
-    fun getListWithTask(): Flow<List<ListWithTask>>
+    fun getListsEntities(): Flow<List<ListEntity>>
+
+    @Query("SELECT * FROM listentity")
+    suspend fun getAllListsEntityWithTask(): List<ListWithTask>
 
     @Transaction
-    @Query("SELECT * FROM ListEntity WHERE listId = :listId")
-    suspend fun getSchoolWithStudents(listId: String): List<ListWithTask>
+    @Query("SELECT * FROM listentity WHERE listId = :listId")
+    fun getListWithTasksWithId(listId: Int): Flow<List<ListWithTask>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTaskEntity(taskEntity: TaskEntity): Long

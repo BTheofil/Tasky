@@ -135,7 +135,7 @@ class AddEditTaskViewModel @Inject constructor(
         expireTime = task.expireTime,
         expireDate = task.expireDate,
         isTaskDone = task.initialChecked,
-        listId = -1
+        listId = 1
     )
 
 }

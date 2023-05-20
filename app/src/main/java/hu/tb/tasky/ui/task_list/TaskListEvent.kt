@@ -8,4 +8,5 @@ sealed class TaskListEvent{
     data class OnDoneClick(val task: TaskEntity, val isDone: Boolean): TaskListEvent()
     data class OnSortButtonClick(val oder: Order, val orderType: OrderType): TaskListEvent()
     object OnAddListClick: TaskListEvent()
+    data class OnCreateNewListTextChange(val name: String): TaskListEvent()
 }

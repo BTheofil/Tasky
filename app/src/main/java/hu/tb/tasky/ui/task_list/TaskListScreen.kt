@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import hu.tb.tasky.R
@@ -24,6 +25,8 @@ import hu.tb.tasky.ui.components.FloatingActionButtonComponent
 import hu.tb.tasky.ui.components.TopBar
 import hu.tb.tasky.ui.route.RouteNames
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -35,7 +38,8 @@ fun TaskListScreen(
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(initialPage = 0)
-    val tabTitleNames = mutableListOf(R.string.done, R.string.ongoing)
+
+    var isCreateDialogShow by remember { mutableStateOf(false) }
 
     val dropDownMenuList = listOf(
         SortTask(stringResource(id = R.string.sort_name)) { order, orderType ->
@@ -64,11 +68,11 @@ fun TaskListScreen(
             modifier = Modifier
                 .padding(top = contentPadding.calculateTopPadding()),
         ) {
-            if (taskListState.listNamesList.size < 4) {
+            if (taskListState.listEntityList.size < 4) {
                 TabRow(
                     selectedTabIndex = pagerState.currentPage
                 ) {
-                    taskListState.listNamesList.forEachIndexed { index, listEntity ->
+                    taskListState.listEntityList.forEachIndexed { index, listWithTask ->
                         Tab(
                             selected = pagerState.currentPage == index,
                             onClick = {
@@ -76,18 +80,14 @@ fun TaskListScreen(
                                     pagerState.animateScrollToPage(index)
                                 }
                             },
-                            text = {
-                                Text(
-                                    text = listEntity.name,
-                                )
-                            }
+                            text = { Text(text = listWithTask.list.name) }
                         )
                     }
                     Tab(
-                        selected = true,
-                        onClick = { onEvent(TaskListEvent.OnAddListClick) }
+                        selected = false,
+                        onClick = { isCreateDialogShow = true }
                     ) {
-                        Icon(Icons.Outlined.List, contentDescription = "asd")
+                        Icon(Icons.Outlined.List, contentDescription = "asd") //TODO better icon
                     }
                 }
             } else {
@@ -97,7 +97,7 @@ fun TaskListScreen(
                     selectedTabIndex = pagerState.currentPage,
                     edgePadding = 0.dp
                 ) {
-                    taskListState.listNamesList.forEachIndexed { index, listEntity ->
+                    taskListState.listEntityList.forEachIndexed { index, listWithTask ->
                         Tab(
                             selected = pagerState.currentPage == index,
                             onClick = {
@@ -105,32 +105,40 @@ fun TaskListScreen(
                                     pagerState.animateScrollToPage(index)
                                 }
                             },
-                            text = {
-                                Text(
-                                    text = listEntity.name,
-                                )
-                            }
+                            text = { Text(text = listWithTask.list.name) }
                         )
                     }
                     Tab(
-                        selected = true,
-                        onClick = { onEvent(TaskListEvent.OnAddListClick) }
+                        selected = false,
+                        onClick = { isCreateDialogShow = true }
                     ) {
-                        Icon(Icons.Outlined.List, contentDescription = "asd")
+                        Icon(Icons.Outlined.List, contentDescription = "create new list")
                     }
                 }
             }
             HorizontalPager(
-                pageCount = taskListState.listNamesList.size,
-                state = pagerState
-            ) { index ->
-                taskListState.listWithTask.forEach {
-                    if (index == it.list.listId) {
-                        TaskListContent(
-                            items = it.listOfTask,
-                            navController = navController,
-                            onEvent = onEvent,
-                        )
+                pageCount = taskListState.listEntityList.size,
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) {
+                TaskListContent(
+                    items = taskListState.listEntityList[it].listOfTask,
+                    navController = navController,
+                    onEvent = onEvent,
+                )
+            }
+        }
+        if (isCreateDialogShow) {
+            Dialog(onDismissRequest = { isCreateDialogShow = false }) {
+                Column {
+                    TextField(
+                        value = taskListState.newListName,
+                        onValueChange = { onEvent(TaskListEvent.OnCreateNewListTextChange(it)) })
+                    Button(onClick = {
+                        onEvent(TaskListEvent.OnAddListClick)
+                        isCreateDialogShow = false
+                    }) {
+                        Text(text = "Create")
                     }
                 }
             }
@@ -140,7 +148,7 @@ fun TaskListScreen(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TaskListContent(
+private fun TaskListContent(
     items: List<TaskEntity>,
     navController: NavController,
     onEvent: (TaskListEvent) -> Unit
@@ -168,9 +176,4 @@ fun TaskListContent(
             )
         }
     }
-}
-
-object TabTitles {
-    //const val DONE_TASKS = 0
-    const val ONGOING_TASKS = 1
 }

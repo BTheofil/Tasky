@@ -1,7 +1,6 @@
 package hu.tb.tasky.model
 
 import android.os.Parcelable
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.parcelize.Parcelize
@@ -17,6 +16,5 @@ data class TaskEntity(
     val expireDate: LocalDate?,
     val expireTime: LocalTime?,
     val isTaskDone: Boolean,
-    @ColumnInfo(name = "listId", defaultValue = "-1")
     val listId: Int,
 ): Parcelable

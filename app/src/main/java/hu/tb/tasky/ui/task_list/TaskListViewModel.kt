@@ -1,13 +1,11 @@
 package hu.tb.tasky.ui.task_list
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.tb.tasky.data.repository.DataStoreProtoRepository
 import hu.tb.tasky.data.repository.TaskEntityRepositoryImpl
 import hu.tb.tasky.model.ListEntity
-import hu.tb.tasky.model.TaskEntity
 import hu.tb.tasky.ui.add_edit_task.alarm.AlarmScheduler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -17,42 +15,21 @@ import javax.inject.Inject
 @HiltViewModel
 class TaskListViewModel @Inject constructor(
     private val taskEntityRepository: TaskEntityRepositoryImpl,
-    private val savedStateHandle: SavedStateHandle,
     private val scheduler: AlarmScheduler,
     dataStoreProto: DataStoreProtoRepository,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(
-        TaskListState(
-            taskMapList = emptyMap(),
-        )
-    )
+    private val _state = MutableStateFlow(TaskListState())
     val state: StateFlow<TaskListState> = _state
 
     val dataStore: DataStoreProtoRepository = dataStoreProto
 
     init {
         viewModelScope.launch {
-            dataStore.appSettings.collect {
-                taskEntityRepository.getDoneTaskEntities(it.sortBy, it.sortTYPE).collect { list ->
-                    savedStateHandle[DONE_TASKS_KEY] = list
-                    updateState()
-                }
-            }
-        }
-        viewModelScope.launch {
-            dataStore.appSettings.collect {
-                taskEntityRepository.getOngoingTaskEntities(it.sortBy, it.sortTYPE)
-                    .collect { list ->
-                        savedStateHandle[ONGOING_TASKS_KEY] = list
-                        updateState()
-                    }
-            }
-        }
-        viewModelScope.launch {
-            taskEntityRepository.getListWithTask().collect{
+            dataStoreProto.appSettings.collect{
+                val result = taskEntityRepository.getAllListsEntityWithTask(it.sortBy, it.sortTYPE)
                 _state.value = state.value.copy(
-                    listWithTask = it
+                    listEntityList = result,
                 )
             }
         }
@@ -74,45 +51,19 @@ class TaskListViewModel @Inject constructor(
             }
             is TaskListEvent.OnSortButtonClick -> {
                 viewModelScope.launch {
-                    taskEntityRepository.getDoneTaskEntities(event.oder, event.orderType).collect {
-                        savedStateHandle[DONE_TASKS_KEY] = it
-                        updateState()
-                    }
-                }
-                viewModelScope.launch {
-                    taskEntityRepository.getOngoingTaskEntities(event.oder, event.orderType)
-                        .collect {
-                            savedStateHandle[ONGOING_TASKS_KEY] = it
-                            updateState()
-                        }
+                    val result = taskEntityRepository.getAllListsEntityWithTask(event.oder, event.orderType)
+                    _state.value = state.value.copy(
+                        listEntityList = result
+                    )
                 }
             }
             TaskListEvent.OnAddListClick -> {
-                _state.value = state.value.copy(
-                    listNamesList = listOf(ListEntity(name = "egy"), ListEntity(name = "ketto"), ListEntity(name = "harom"), ListEntity(name = "negy"))
-                )
+                viewModelScope.launch {
+                    taskEntityRepository.insertListEntity(ListEntity(name = state.value.newListName))
+                }
             }
+            is TaskListEvent.OnCreateNewListTextChange -> _state.value =
+                state.value.copy(newListName = event.name)
         }
     }
-
-    private fun updateState() {
-        _state.value = state.value.copy(
-            taskMapList = mapOf(
-                0 to savedStateHandle.getStateFlow<List<TaskEntity>>(
-                    DONE_TASKS_KEY,
-                    emptyList()
-                ).value,
-                1 to savedStateHandle.getStateFlow<List<TaskEntity>>(
-                    ONGOING_TASKS_KEY,
-                    emptyList()
-                ).value,
-            )
-        )
-    }
-
-    companion object {
-        const val ONGOING_TASKS_KEY = "OngoingTaskEntities"
-        const val DONE_TASKS_KEY = "DoneTaskEntities"
-    }
-
 }
