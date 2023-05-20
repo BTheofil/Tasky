@@ -47,10 +47,7 @@ fun TaskListScreen(
         },
         SortTask(stringResource(id = R.string.sort_time)) { order, orderType ->
             onEvent(
-                TaskListEvent.OnSortButtonClick(
-                    order,
-                    orderType
-                )
+                TaskListEvent.OnSortButtonClick(order, orderType)
             )
         },
     )

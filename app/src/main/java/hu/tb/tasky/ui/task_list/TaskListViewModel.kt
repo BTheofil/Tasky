@@ -16,7 +16,7 @@ import javax.inject.Inject
 class TaskListViewModel @Inject constructor(
     private val taskEntityRepository: TaskEntityRepositoryImpl,
     private val scheduler: AlarmScheduler,
-    dataStoreProto: DataStoreProtoRepository,
+    private val dataStoreProto: DataStoreProtoRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(TaskListState())
@@ -25,14 +25,7 @@ class TaskListViewModel @Inject constructor(
     val dataStore: DataStoreProtoRepository = dataStoreProto
 
     init {
-        viewModelScope.launch {
-            dataStoreProto.appSettings.collect{
-                val result = taskEntityRepository.getAllListsEntityWithTask(it.sortBy, it.sortTYPE)
-                _state.value = state.value.copy(
-                    listEntityList = result,
-                )
-            }
-        }
+        update()
     }
 
     fun onEvent(event: TaskListEvent) {
@@ -64,6 +57,17 @@ class TaskListViewModel @Inject constructor(
             }
             is TaskListEvent.OnCreateNewListTextChange -> _state.value =
                 state.value.copy(newListName = event.name)
+        }
+    }
+
+    fun update(){
+        viewModelScope.launch {
+            dataStoreProto.appSettings.collect{
+                val result = taskEntityRepository.getAllListsEntityWithTask(it.sortBy, it.sortTYPE)
+                _state.value = state.value.copy(
+                    listEntityList = result,
+                )
+            }
         }
     }
 }

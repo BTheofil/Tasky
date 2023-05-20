@@ -33,6 +33,7 @@ class MainActivity : ComponentActivity() {
                 ) {
                     composable(MAIN_SCREEN) {
                         val viewModel = hiltViewModel<TaskListViewModel>()
+                        viewModel.update()
                         val state by viewModel.state.collectAsState()
                         TaskListScreen(
                             state,
