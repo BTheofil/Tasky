@@ -6,5 +6,5 @@ import hu.tb.tasky.model.relations.ListWithTask
 data class TaskListState(
     val listEntityWithTaskAllList: List<ListWithTask> = emptyList(),
     val newListName: String = "",
-    val activeListEntity: ListEntity = ListEntity(0, "My list"),
+    val activeListEntity: ListEntity = ListEntity(1, "My list"),
 )

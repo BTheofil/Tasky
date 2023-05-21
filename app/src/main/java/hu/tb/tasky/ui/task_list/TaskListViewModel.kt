@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.tb.tasky.data.repository.DataStoreProtoRepository
 import hu.tb.tasky.data.repository.TaskEntityRepositoryImpl
+import hu.tb.tasky.domain.use_case.ValidateTitle
+import hu.tb.tasky.domain.use_case.ValidationResult
 import hu.tb.tasky.model.ListEntity
 import hu.tb.tasky.ui.add_edit_task.alarm.AlarmScheduler
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,7 +30,7 @@ class TaskListViewModel @Inject constructor(
         viewModelScope.launch {
             dataStore.appSettings.collect { appSettings ->
                 if (appSettings.isFirstTimeAppStart) {
-                    taskEntityRepository.insertListEntity(ListEntity(listId = 0, name = "My list"))
+                    taskEntityRepository.insertListEntity(ListEntity(name = "My list"))
                     dataStore.setFirstTimeAppStartToFalse()
                 }
             }
@@ -72,12 +74,6 @@ class TaskListViewModel @Inject constructor(
                         }
                 }
             }
-            TaskListEvent.OnAddListClick -> {
-                viewModelScope.launch {
-                    taskEntityRepository.insertListEntity(ListEntity(name = _state.value.newListName))
-                    _state.value = state.value.copy(newListName = "")
-                }
-            }
             is TaskListEvent.OnCreateNewListTextChange -> _state.value =
                 state.value.copy(newListName = event.name)
             is TaskListEvent.OnListDelete -> {
@@ -96,5 +92,18 @@ class TaskListViewModel @Inject constructor(
             is TaskListEvent.ChangeActiveList -> _state.value =
                 state.value.copy(activeListEntity = event.listEntity)
         }
+    }
+
+    fun isSaveListSuccess(): Boolean {
+        val titleResult = ValidateTitle().execute(_state.value.newListName)
+
+        if(titleResult == ValidationResult.ERROR){
+            return false
+        }
+        viewModelScope.launch {
+            taskEntityRepository.insertListEntity(ListEntity(name = _state.value.newListName))
+            _state.value = state.value.copy(newListName = "")
+        }
+        return true
     }
 }

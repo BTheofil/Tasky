@@ -40,6 +40,7 @@ class MainActivity : ComponentActivity() {
                             navController,
                             viewModel::onEvent,
                             viewModel.dataStore,
+                            viewModel::isSaveListSuccess
                         )
                     }
                     composable(
