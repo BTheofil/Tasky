@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material.icons.outlined.List
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -25,8 +26,6 @@ import hu.tb.tasky.ui.components.FloatingActionButtonComponent
 import hu.tb.tasky.ui.components.TopBar
 import hu.tb.tasky.ui.route.RouteNames
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -52,6 +51,14 @@ fun TaskListScreen(
         },
     )
 
+    LaunchedEffect(key1 = pagerState.currentPage){
+        if (taskListState.listEntityWithTaskAllList.isNotEmpty()){
+            onEvent(TaskListEvent.ChangeActiveList(
+                taskListState.listEntityWithTaskAllList[pagerState.currentPage].list
+            ))
+        }
+    }
+
     Scaffold(
         topBar = {
             TopBar(
@@ -59,24 +66,36 @@ fun TaskListScreen(
                 protoData,
             )
         },
-        floatingActionButton = {
-            FloatingActionButtonComponent(
-                listId = if (taskListState.listEntityList.isEmpty()) -1 else taskListState.listEntityList[pagerState.currentPage].list.listId!!,
-                navController = navController
+        bottomBar = {
+            BottomAppBar(
+                actions = {
+                          IconButton(onClick = {
+                              if(taskListState.activeListEntity.listId != 1){
+                                  onEvent(TaskListEvent.OnListDelete(taskListState.activeListEntity))
+                              }
+                          }) {
+                              Icon(Icons.Outlined.Delete, contentDescription = "Delete button")
+                          }
+                },
+                floatingActionButton = {
+                    FloatingActionButtonComponent(
+                        listId = taskListState.activeListEntity.listId,
+                        navController = navController
+                    )
+                },
             )
-        }
+        },
     ) { contentPadding ->
         Column(
             modifier = Modifier
                 .padding(top = contentPadding.calculateTopPadding()),
         ) {
-            if (taskListState.listEntityList.size < 4) {
+            if (taskListState.listEntityWithTaskAllList.size < 4) {
                 TabRow(
                     selectedTabIndex = pagerState.currentPage
                 ) {
-                    taskListState.listEntityList.forEachIndexed { index, listWithTask ->
-                        Tab(
-                            selected = pagerState.currentPage == index,
+                    taskListState.listEntityWithTaskAllList.forEachIndexed { index, listWithTask ->
+                        Tab(selected = pagerState.currentPage == index,
                             onClick = {
                                 scope.launch {
                                     pagerState.animateScrollToPage(index)
@@ -85,8 +104,7 @@ fun TaskListScreen(
                             text = { Text(text = listWithTask.list.name) }
                         )
                     }
-                    Tab(
-                        selected = false,
+                    Tab(selected = false,
                         onClick = { isCreateDialogShow = true }
                     ) {
                         Icon(Icons.Outlined.List, contentDescription = "asd") //TODO better icon
@@ -99,7 +117,7 @@ fun TaskListScreen(
                     selectedTabIndex = pagerState.currentPage,
                     edgePadding = 0.dp
                 ) {
-                    taskListState.listEntityList.forEachIndexed { index, listWithTask ->
+                    taskListState.listEntityWithTaskAllList.forEachIndexed { index, listWithTask ->
                         Tab(
                             selected = pagerState.currentPage == index,
                             onClick = {
@@ -119,13 +137,13 @@ fun TaskListScreen(
                 }
             }
             HorizontalPager(
-                pageCount = taskListState.listEntityList.size,
+                pageCount = taskListState.listEntityWithTaskAllList.size,
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
-            ) {
+            ) { index ->
                 TaskListContent(
-                    listId = taskListState.listEntityList[it].list.listId!!,
-                    items = taskListState.listEntityList[it].listOfTask,
+                    listId = taskListState.listEntityWithTaskAllList[index].list.listId,
+                    items = taskListState.listEntityWithTaskAllList[index].listOfTask,
                     navController = navController,
                     onEvent = onEvent,
                 )

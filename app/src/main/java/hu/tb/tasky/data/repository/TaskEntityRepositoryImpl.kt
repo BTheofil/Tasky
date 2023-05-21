@@ -38,13 +38,17 @@ class TaskEntityRepositoryImpl(
 
     override suspend fun deleteTask(task: TaskEntity) = dao.deleteTaskEntity(task)
 
-    suspend fun getAllListsEntityWithTask(
+    suspend fun deleteListEntity(id: Int) = dao.deleteListEntityById(id)
+
+    fun getAllListsEntityWithTask(
         order: Order = Order.TIME,
         orderType: OrderType = OrderType.DESCENDING
-    ): List<ListWithTask> {
-        return dao.getAllListsEntityWithTask().map { listWithTask ->
-            val sortedTasks = sortLogic(listWithTask.listOfTask, order, orderType)
-            ListWithTask(listWithTask.list, sortedTasks)
+    ): Flow<List<ListWithTask>> {
+        return dao.getAllListsEntityWithTask().map { lists ->
+            lists.map { listWithTask ->
+                val sortedTasks = sortLogic(listWithTask.listOfTask, order, orderType)
+                ListWithTask(listWithTask.list, sortedTasks)
+            }
         }
     }
 

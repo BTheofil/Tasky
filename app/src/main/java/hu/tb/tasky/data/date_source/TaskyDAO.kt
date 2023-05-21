@@ -25,11 +25,12 @@ interface TaskyDAO {
     @Query("SELECT * FROM ListEntity")
     fun getListsEntities(): Flow<List<ListEntity>>
 
-    @Query("SELECT * FROM listentity")
-    suspend fun getAllListsEntityWithTask(): List<ListWithTask>
+    @Transaction
+    @Query("SELECT * FROM ListEntity")
+    fun getAllListsEntityWithTask(): Flow<List<ListWithTask>>
 
     @Transaction
-    @Query("SELECT * FROM listentity WHERE listId = :listId")
+    @Query("SELECT * FROM ListEntity WHERE listId = :listId")
     fun getListWithTasksWithId(listId: Int): Flow<List<ListWithTask>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -40,4 +41,10 @@ interface TaskyDAO {
 
     @Delete
     suspend fun deleteTaskEntity(taskEntity: TaskEntity)
+
+    @Delete
+    suspend fun deleteListEntity(listEntity: ListEntity)
+
+    @Query("DELETE FROM ListEntity WHERE listId = :listId")
+    suspend fun deleteListEntityById(listId: Int)
 }

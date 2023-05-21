@@ -14,7 +14,7 @@ fun FloatingActionButtonComponent(
     navController: NavController
 ) {
     FloatingActionButton(
-        onClick = { navController.navigate(ADD_EDIT_SCREEN + "/listId=$listId") },
+        onClick = { navController.navigate("$ADD_EDIT_SCREEN/listId=$listId") },
     ) {
         Icon(Icons.Filled.Add, "Add new task")
     }

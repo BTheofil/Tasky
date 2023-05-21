@@ -25,7 +25,27 @@ class TaskListViewModel @Inject constructor(
     val dataStore: DataStoreProtoRepository = dataStoreProto
 
     init {
-        update()
+        viewModelScope.launch {
+            dataStore.appSettings.collect { appSettings ->
+                if (appSettings.isFirstTimeAppStart) {
+                    taskEntityRepository.insertListEntity(ListEntity(listId = 0, name = "My list"))
+                    dataStore.setFirstTimeAppStartToFalse()
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            dataStoreProto.appSettings.collect { appSettings ->
+                taskEntityRepository.getAllListsEntityWithTask(
+                    appSettings.sortBy,
+                    appSettings.sortTYPE
+                ).collect { allListWithTask ->
+                    _state.value = state.value.copy(
+                        listEntityWithTaskAllList = allListWithTask,
+                    )
+                }
+            }
+        }
     }
 
     fun onEvent(event: TaskListEvent) {
@@ -44,30 +64,37 @@ class TaskListViewModel @Inject constructor(
             }
             is TaskListEvent.OnSortButtonClick -> {
                 viewModelScope.launch {
-                    val result = taskEntityRepository.getAllListsEntityWithTask(event.oder, event.orderType)
-                    _state.value = state.value.copy(
-                        listEntityList = result
-                    )
+                    taskEntityRepository.getAllListsEntityWithTask(event.oder, event.orderType)
+                        .collect {
+                            _state.value = state.value.copy(
+                                listEntityWithTaskAllList = it
+                            )
+                        }
                 }
             }
             TaskListEvent.OnAddListClick -> {
                 viewModelScope.launch {
-                    taskEntityRepository.insertListEntity(ListEntity(name = state.value.newListName))
+                    taskEntityRepository.insertListEntity(ListEntity(name = _state.value.newListName))
+                    _state.value = state.value.copy(newListName = "")
                 }
             }
             is TaskListEvent.OnCreateNewListTextChange -> _state.value =
                 state.value.copy(newListName = event.name)
-        }
-    }
+            is TaskListEvent.OnListDelete -> {
+                viewModelScope.launch {
+                    val listToRemove = state.value.listEntityWithTaskAllList
+                        .filter { it.list == event.listEntity }
+                        .flatMap { it.listOfTask }
 
-    fun update(){
-        viewModelScope.launch {
-            dataStoreProto.appSettings.collect{
-                val result = taskEntityRepository.getAllListsEntityWithTask(it.sortBy, it.sortTYPE)
-                _state.value = state.value.copy(
-                    listEntityList = result,
-                )
+                    listToRemove.forEach { taskEntity ->
+                        scheduler.cancel(taskEntity.taskId!!)
+                        taskEntityRepository.deleteTask(taskEntity)
+                    }
+                    taskEntityRepository.deleteListEntity(event.listEntity.listId)
+                }
             }
+            is TaskListEvent.ChangeActiveList -> _state.value =
+                state.value.copy(activeListEntity = event.listEntity)
         }
     }
 }

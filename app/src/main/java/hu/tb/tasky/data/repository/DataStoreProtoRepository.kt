@@ -21,4 +21,12 @@ class DataStoreProtoRepository(
             )
         }
     }
+
+    suspend fun setFirstTimeAppStartToFalse(){
+        context.dataStore.updateData {
+            it.copy(
+                isFirstTimeAppStart = false
+            )
+        }
+    }
 }

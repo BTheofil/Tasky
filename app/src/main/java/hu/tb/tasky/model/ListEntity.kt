@@ -5,6 +5,7 @@ import androidx.room.PrimaryKey
 
 @Entity
 data class ListEntity(
-    @PrimaryKey val listId: Int? = null,
+    @PrimaryKey(autoGenerate = true)
+    val listId: Int = 0,
     val name: String,
 )
