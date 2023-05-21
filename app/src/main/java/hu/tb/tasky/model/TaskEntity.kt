@@ -10,10 +10,11 @@ import org.threeten.bp.LocalTime
 @Parcelize
 @Entity
 data class TaskEntity(
-    @PrimaryKey val id: Int? = null,
+    @PrimaryKey val taskId: Int? = null,
     val title: String,
     val description: String,
     val expireDate: LocalDate?,
     val expireTime: LocalTime?,
     val isTaskDone: Boolean,
+    val listId: Int,
 ): Parcelable

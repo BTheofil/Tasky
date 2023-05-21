@@ -6,7 +6,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import hu.tb.tasky.data.date_source.TaskEntityDatabase
+import hu.tb.tasky.data.date_source.TaskyDatabase
 import hu.tb.tasky.data.repository.DataStoreProtoRepository
 import hu.tb.tasky.data.repository.TaskEntityRepositoryImpl
 import hu.tb.tasky.ui.add_edit_task.alarm.AlarmScheduler
@@ -18,18 +18,18 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideTaskDatabase(app: Application): TaskEntityDatabase {
+    fun provideTaskDatabase(app: Application): TaskyDatabase {
         return Room.databaseBuilder(
             app,
-            TaskEntityDatabase::class.java,
-            TaskEntityDatabase.DATABASE_NAME
+            TaskyDatabase::class.java,
+            TaskyDatabase.DATABASE_NAME
         )
             .build()
     }
 
     @Provides
     @Singleton
-    fun provideTaskRepository(db: TaskEntityDatabase): TaskEntityRepositoryImpl {
+    fun provideTaskRepository(db: TaskyDatabase): TaskEntityRepositoryImpl {
         return TaskEntityRepositoryImpl(db.taskDao)
     }
 

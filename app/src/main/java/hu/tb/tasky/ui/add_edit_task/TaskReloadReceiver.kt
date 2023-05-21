@@ -48,7 +48,7 @@ class TaskReloadReceiver : BroadcastReceiver() {
 
     private fun converter(task: TaskEntity): AddEditTaskState = with(task) {
         AddEditTaskState(
-            id = this.id,
+            id = this.taskId,
             title = this.title,
             description = this.description,
             expireDate = this.expireDate,

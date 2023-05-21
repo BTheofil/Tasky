@@ -1,7 +1,10 @@
 package hu.tb.tasky.ui.task_list
 
-import hu.tb.tasky.model.TaskEntity
+import hu.tb.tasky.model.ListEntity
+import hu.tb.tasky.model.relations.ListWithTask
 
 data class TaskListState(
-    val taskMapList: Map<Int, List<TaskEntity>>,
+    val listEntityWithTaskAllList: List<ListWithTask> = emptyList(),
+    val newListName: String = "",
+    val activeListEntity: ListEntity = ListEntity(1, "My list"),
 )

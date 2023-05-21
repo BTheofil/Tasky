@@ -7,14 +7,17 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
-import androidx.compose.material3.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Create
+import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import hu.tb.tasky.R
@@ -24,7 +27,6 @@ import hu.tb.tasky.model.TaskEntity
 import hu.tb.tasky.ui.components.FloatingActionButtonComponent
 import hu.tb.tasky.ui.components.TopBar
 import hu.tb.tasky.ui.route.RouteNames
-import hu.tb.tasky.ui.task_list.TabTitles.ONGOING_TASKS
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -33,11 +35,14 @@ fun TaskListScreen(
     taskListState: TaskListState,
     navController: NavHostController,
     onEvent: (TaskListEvent) -> Unit,
-    protodata: DataStoreProtoRepository,
+    protoData: DataStoreProtoRepository,
+    saveList: () -> Boolean,
 ) {
     val scope = rememberCoroutineScope()
-    val pagerState = rememberPagerState(initialPage = ONGOING_TASKS)
-    val tabTitleNames = listOf(R.string.done, R.string.ongoing)
+    val pagerState = rememberPagerState(initialPage = 0)
+
+    var isCreateDialogShow by remember { mutableStateOf(false) }
+    var isCreateDialogHasError by remember { mutableStateOf(false) }
 
     val dropDownMenuList = listOf(
         SortTask(stringResource(id = R.string.sort_name)) { order, orderType ->
@@ -45,29 +50,60 @@ fun TaskListScreen(
         },
         SortTask(stringResource(id = R.string.sort_time)) { order, orderType ->
             onEvent(
-                TaskListEvent.OnSortButtonClick(
-                    order,
-                    orderType
-                )
+                TaskListEvent.OnSortButtonClick(order, orderType)
             )
         },
     )
+
+    LaunchedEffect(key1 = pagerState.currentPage) {
+        if (taskListState.listEntityWithTaskAllList.isNotEmpty()) {
+            onEvent(
+                TaskListEvent.ChangeActiveList(
+                    taskListState.listEntityWithTaskAllList[pagerState.currentPage].list
+                )
+            )
+        }
+    }
 
     Scaffold(
         topBar = {
             TopBar(
                 dropDownMenuList = dropDownMenuList,
-                protodata,
+                protoData,
             )
         },
-        floatingActionButton = { FloatingActionButtonComponent(navController = navController) }
+        bottomBar = {
+            BottomAppBar(
+                actions = {
+                    IconButton(onClick = {
+                        if (taskListState.activeListEntity.listId != 1) {
+                            onEvent(TaskListEvent.OnListDelete(taskListState.activeListEntity))
+                        }
+                    }) {
+                        Icon(Icons.Outlined.Delete, contentDescription = "Delete button")
+                    }
+                },
+                floatingActionButton = {
+                    FloatingActionButtonComponent(
+                        listId = taskListState.activeListEntity.listId,
+                        navController = navController
+                    )
+                },
+            )
+        },
     ) { contentPadding ->
         Column(
             modifier = Modifier
                 .padding(top = contentPadding.calculateTopPadding()),
         ) {
-            TabRow(selectedTabIndex = pagerState.currentPage) {
-                tabTitleNames.forEachIndexed { index, title ->
+            ScrollableTabRow(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                selectedTabIndex = pagerState.currentPage,
+                edgePadding = 0.dp,
+                divider = { }
+            ) {
+                taskListState.listEntityWithTaskAllList.forEachIndexed { index, listWithTask ->
                     Tab(
                         selected = pagerState.currentPage == index,
                         onClick = {
@@ -75,27 +111,73 @@ fun TaskListScreen(
                                 pagerState.animateScrollToPage(index)
                             }
                         },
-                        text = {
-                            Text(
-                                text = stringResource(id = title),
-                            )
-                        }
+                        text = { Text(text = listWithTask.list.name) }
                     )
                 }
-            }
-            HorizontalPager(
-                pageCount = tabTitleNames.size,
-                state = pagerState
-            ) { index ->
-                taskListState.taskMapList.forEach {
-                    if (index == it.key) {
-                        TaskListContent(
-                            items = it.value,
-                            navController = navController,
-                            onEvent = onEvent,
-                        )
+                Tab(selected = false,
+                    onClick = { isCreateDialogShow = true }
+                ) {
+                    Row {
+                        Icon(Icons.Outlined.Create, contentDescription = "Create new list")
+                        Text(text = stringResource(R.string.create_new_list))
                     }
                 }
+            }
+            Divider(modifier = Modifier.fillMaxWidth())
+            HorizontalPager(
+                pageCount = taskListState.listEntityWithTaskAllList.size,
+                state = pagerState,
+                modifier = Modifier.fillMaxSize()
+            ) { index ->
+                TaskListContent(
+                    listId = taskListState.listEntityWithTaskAllList[index].list.listId,
+                    items = taskListState.listEntityWithTaskAllList[index].listOfTask,
+                    navController = navController,
+                    onEvent = onEvent,
+                )
+            }
+        }
+        if (isCreateDialogShow) {
+            Dialog(onDismissRequest = { isCreateDialogShow = false }) {
+                Card(
+                    shape = RoundedCornerShape(8.dp)
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        TextField(
+                            value = taskListState.newListName,
+                            onValueChange = { onEvent(TaskListEvent.OnCreateNewListTextChange(it)) },
+                            singleLine = true,
+                            label = { Text(text = stringResource(R.string.new_list_name)) },
+                            isError = isCreateDialogHasError
+                        )
+                        Row(
+                            modifier = Modifier
+                                .padding(top = 16.dp)
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            OutlinedButton(onClick = { isCreateDialogShow = false }) {
+                                Text(text = stringResource(id = R.string.cancel))
+                            }
+                            Button(
+                                onClick = {
+                                    if (saveList()) {
+                                        isCreateDialogHasError = false
+                                        isCreateDialogShow = false
+                                    } else {
+                                        isCreateDialogHasError = true
+                                    }
+                                }) {
+                                Text(text = stringResource(id = R.string.save))
+                            }
+                        }
+
+                    }
+                }
+
             }
         }
     }
@@ -103,7 +185,8 @@ fun TaskListScreen(
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun TaskListContent(
+private fun TaskListContent(
+    listId: Int,
     items: List<TaskEntity>,
     navController: NavController,
     onEvent: (TaskListEvent) -> Unit
@@ -116,13 +199,13 @@ fun TaskListContent(
     ) {
         items(
             items = items,
-            key = { task -> task.id!! }
+            key = { task -> task.taskId!! }
         ) { task ->
             TaskItemContainer(
                 modifier = Modifier
                     .animateItemPlacement()
                     .clickable {
-                        navController.navigate(RouteNames.ADD_EDIT_SCREEN + "?editedTask=${task.id}")
+                        navController.navigate(RouteNames.ADD_EDIT_SCREEN + "/listId=$listId?editedTask=${task.taskId}")
                     }
                     .height(IntrinsicSize.Max),
                 taskItem = task,
@@ -131,9 +214,4 @@ fun TaskListContent(
             )
         }
     }
-}
-
-object TabTitles {
-    //const val DONE_TASKS = 0
-    const val ONGOING_TASKS = 1
 }

@@ -1,12 +1,13 @@
 package hu.tb.tasky.ui.task_list
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import hu.tb.tasky.data.repository.DataStoreProtoRepository
 import hu.tb.tasky.data.repository.TaskEntityRepositoryImpl
-import hu.tb.tasky.model.TaskEntity
+import hu.tb.tasky.domain.use_case.ValidateTitle
+import hu.tb.tasky.domain.use_case.ValidationResult
+import hu.tb.tasky.model.ListEntity
 import hu.tb.tasky.ui.add_edit_task.alarm.AlarmScheduler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -16,36 +17,35 @@ import javax.inject.Inject
 @HiltViewModel
 class TaskListViewModel @Inject constructor(
     private val taskEntityRepository: TaskEntityRepositoryImpl,
-    private val savedStateHandle: SavedStateHandle,
     private val scheduler: AlarmScheduler,
-    dataStoreProto: DataStoreProtoRepository,
+    private val dataStoreProto: DataStoreProtoRepository,
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(
-        TaskListState(
-            taskMapList = emptyMap(),
-        )
-    )
+    private val _state = MutableStateFlow(TaskListState())
     val state: StateFlow<TaskListState> = _state
 
     val dataStore: DataStoreProtoRepository = dataStoreProto
 
     init {
         viewModelScope.launch {
-            dataStore.appSettings.collect {
-                taskEntityRepository.getDoneTaskEntities(it.sortBy, it.sortTYPE).collect { list ->
-                    savedStateHandle[DONE_TASKS_KEY] = list
-                    updateState()
+            dataStore.appSettings.collect { appSettings ->
+                if (appSettings.isFirstTimeAppStart) {
+                    taskEntityRepository.insertListEntity(ListEntity(name = "My list"))
+                    dataStore.setFirstTimeAppStartToFalse()
                 }
             }
         }
+
         viewModelScope.launch {
-            dataStore.appSettings.collect {
-                taskEntityRepository.getOngoingTaskEntities(it.sortBy, it.sortTYPE)
-                    .collect { list ->
-                        savedStateHandle[ONGOING_TASKS_KEY] = list
-                        updateState()
-                    }
+            dataStoreProto.appSettings.collect { appSettings ->
+                taskEntityRepository.getAllListsEntityWithTask(
+                    appSettings.sortBy,
+                    appSettings.sortTYPE
+                ).collect { allListWithTask ->
+                    _state.value = state.value.copy(
+                        listEntityWithTaskAllList = allListWithTask,
+                    )
+                }
             }
         }
     }
@@ -66,40 +66,44 @@ class TaskListViewModel @Inject constructor(
             }
             is TaskListEvent.OnSortButtonClick -> {
                 viewModelScope.launch {
-                    taskEntityRepository.getDoneTaskEntities(event.oder, event.orderType).collect {
-                        savedStateHandle[DONE_TASKS_KEY] = it
-                        updateState()
-                    }
-                }
-                viewModelScope.launch {
-                    taskEntityRepository.getOngoingTaskEntities(event.oder, event.orderType)
+                    taskEntityRepository.getAllListsEntityWithTask(event.oder, event.orderType)
                         .collect {
-                            savedStateHandle[ONGOING_TASKS_KEY] = it
-                            updateState()
+                            _state.value = state.value.copy(
+                                listEntityWithTaskAllList = it
+                            )
                         }
                 }
             }
+            is TaskListEvent.OnCreateNewListTextChange -> _state.value =
+                state.value.copy(newListName = event.name)
+            is TaskListEvent.OnListDelete -> {
+                viewModelScope.launch {
+                    val listToRemove = state.value.listEntityWithTaskAllList
+                        .filter { it.list == event.listEntity }
+                        .flatMap { it.listOfTask }
+
+                    listToRemove.forEach { taskEntity ->
+                        scheduler.cancel(taskEntity.taskId!!)
+                        taskEntityRepository.deleteTask(taskEntity)
+                    }
+                    taskEntityRepository.deleteListEntity(event.listEntity.listId)
+                }
+            }
+            is TaskListEvent.ChangeActiveList -> _state.value =
+                state.value.copy(activeListEntity = event.listEntity)
         }
     }
 
-    private fun updateState() {
-        _state.value = state.value.copy(
-            taskMapList = mapOf(
-                0 to savedStateHandle.getStateFlow<List<TaskEntity>>(
-                    DONE_TASKS_KEY,
-                    emptyList()
-                ).value,
-                1 to savedStateHandle.getStateFlow<List<TaskEntity>>(
-                    ONGOING_TASKS_KEY,
-                    emptyList()
-                ).value,
-            )
-        )
-    }
+    fun isSaveListSuccess(): Boolean {
+        val titleResult = ValidateTitle().execute(_state.value.newListName)
 
-    companion object {
-        const val ONGOING_TASKS_KEY = "OngoingTaskEntities"
-        const val DONE_TASKS_KEY = "DoneTaskEntities"
+        if(titleResult == ValidationResult.ERROR){
+            return false
+        }
+        viewModelScope.launch {
+            taskEntityRepository.insertListEntity(ListEntity(name = _state.value.newListName))
+            _state.value = state.value.copy(newListName = "")
+        }
+        return true
     }
-
 }

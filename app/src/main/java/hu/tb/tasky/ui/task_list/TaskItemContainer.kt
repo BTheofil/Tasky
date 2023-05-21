@@ -96,6 +96,7 @@ fun TaskItemContainerPreview() {
         expireDate = null,
         expireTime = null,
         isTaskDone = false,
+        listId = -1
     )
     TaskItemContainer(taskItem = testTask, onDoneClick = {}, isDone = false)
 }
