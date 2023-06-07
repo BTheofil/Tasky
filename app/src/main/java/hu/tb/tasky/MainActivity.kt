@@ -1,7 +1,6 @@
 package hu.tb.tasky
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.runtime.collectAsState
@@ -56,7 +55,6 @@ class MainActivity : ComponentActivity() {
                             }
                         )
                     ) {
-                        Log.d("MYTAG", it.arguments!!.getInt("listId").toString())
                         AddEditTaskScreen(
                             navController = navController,
                         )

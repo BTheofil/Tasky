@@ -39,7 +39,11 @@ fun TaskListScreen(
     saveList: () -> Boolean,
 ) {
     val scope = rememberCoroutineScope()
-    val pagerState = rememberPagerState(initialPage = 0)
+    val pagerState = rememberPagerState(
+        initialPage = 0
+    ) {
+        taskListState.listEntityWithTaskAllList.size
+    }
 
     var isCreateDialogShow by remember { mutableStateOf(false) }
     var isCreateDialogHasError by remember { mutableStateOf(false) }
@@ -101,7 +105,7 @@ fun TaskListScreen(
                     .fillMaxWidth(),
                 selectedTabIndex = pagerState.currentPage,
                 edgePadding = 0.dp,
-                divider = { }
+                divider = {}
             ) {
                 taskListState.listEntityWithTaskAllList.forEachIndexed { index, listWithTask ->
                     Tab(
@@ -125,13 +129,12 @@ fun TaskListScreen(
             }
             Divider(modifier = Modifier.fillMaxWidth())
             HorizontalPager(
-                pageCount = taskListState.listEntityWithTaskAllList.size,
                 state = pagerState,
                 modifier = Modifier.fillMaxSize()
             ) { index ->
                 TaskListContent(
-                    listId = taskListState.listEntityWithTaskAllList[index].list.listId,
-                    items = taskListState.listEntityWithTaskAllList[index].listOfTask,
+                    listId = if(taskListState.listEntityWithTaskAllList.isEmpty()) 0 else taskListState.listEntityWithTaskAllList[index].list.listId,
+                    items = if(taskListState.listEntityWithTaskAllList.isEmpty()) emptyList() else taskListState.listEntityWithTaskAllList[index].listOfTask,
                     navController = navController,
                     onEvent = onEvent,
                 )
