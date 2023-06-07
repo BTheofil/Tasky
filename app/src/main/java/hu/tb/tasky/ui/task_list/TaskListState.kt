@@ -7,4 +7,5 @@ data class TaskListState(
     val listEntityWithTaskAllList: List<ListWithTask> = emptyList(),
     val newListName: String = "",
     val activeListEntity: ListEntity = ListEntity(1, "My list"),
+    val createNewListDialogHasError: Boolean = false,
 )

@@ -1,32 +1,25 @@
 package hu.tb.tasky.ui.task_list
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Create
 import androidx.compose.material.icons.outlined.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import hu.tb.tasky.R
 import hu.tb.tasky.data.repository.DataStoreProtoRepository
 import hu.tb.tasky.model.SortTask
-import hu.tb.tasky.model.TaskEntity
 import hu.tb.tasky.ui.components.FloatingActionButtonComponent
 import hu.tb.tasky.ui.components.TopBar
-import hu.tb.tasky.ui.route.RouteNames
+import hu.tb.tasky.ui.task_list.component.SurelyDeleteDialog
+import hu.tb.tasky.ui.task_list.component.TaskListContent
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -36,7 +29,6 @@ fun TaskListScreen(
     navController: NavHostController,
     onEvent: (TaskListEvent) -> Unit,
     protoData: DataStoreProtoRepository,
-    saveList: () -> Boolean,
 ) {
     val scope = rememberCoroutineScope()
     val pagerState = rememberPagerState(
@@ -46,7 +38,6 @@ fun TaskListScreen(
     }
 
     var isCreateDialogShow by remember { mutableStateOf(false) }
-    var isCreateDialogHasError by remember { mutableStateOf(false) }
 
     val dropDownMenuList = listOf(
         SortTask(stringResource(id = R.string.sort_name)) { order, orderType ->
@@ -67,6 +58,25 @@ fun TaskListScreen(
                 )
             )
         }
+    }
+
+    if (isCreateDialogShow) {
+        SurelyDeleteDialog(
+            onDismissRequest = { isCreateDialogShow = false },
+            onPositiveBtnClick = {
+                onEvent(TaskListEvent.SaveList)
+                if (!taskListState.createNewListDialogHasError) {
+                    isCreateDialogShow = false
+                }
+            },
+            onNegativeBtnClick = {
+                isCreateDialogShow = false
+                onEvent(TaskListEvent.ClearDialogState)
+            },
+            valueText = taskListState.newListName,
+            onValueChange = { onEvent(TaskListEvent.OnCreateNewListTextChange(it)) },
+            isDialogError = taskListState.createNewListDialogHasError,
+        )
     }
 
     Scaffold(
@@ -133,88 +143,12 @@ fun TaskListScreen(
                 modifier = Modifier.fillMaxSize()
             ) { index ->
                 TaskListContent(
-                    listId = if(taskListState.listEntityWithTaskAllList.isEmpty()) 0 else taskListState.listEntityWithTaskAllList[index].list.listId,
-                    items = if(taskListState.listEntityWithTaskAllList.isEmpty()) emptyList() else taskListState.listEntityWithTaskAllList[index].listOfTask,
+                    listId = if (taskListState.listEntityWithTaskAllList.isEmpty()) 0 else taskListState.listEntityWithTaskAllList[index].list.listId,
+                    items = if (taskListState.listEntityWithTaskAllList.isEmpty()) emptyList() else taskListState.listEntityWithTaskAllList[index].listOfTask,
                     navController = navController,
                     onEvent = onEvent,
                 )
             }
-        }
-        if (isCreateDialogShow) {
-            Dialog(onDismissRequest = { isCreateDialogShow = false }) {
-                Card(
-                    shape = RoundedCornerShape(8.dp)
-                ) {
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        TextField(
-                            value = taskListState.newListName,
-                            onValueChange = { onEvent(TaskListEvent.OnCreateNewListTextChange(it)) },
-                            singleLine = true,
-                            label = { Text(text = stringResource(R.string.new_list_name)) },
-                            isError = isCreateDialogHasError
-                        )
-                        Row(
-                            modifier = Modifier
-                                .padding(top = 16.dp)
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ) {
-                            OutlinedButton(onClick = { isCreateDialogShow = false }) {
-                                Text(text = stringResource(id = R.string.cancel))
-                            }
-                            Button(
-                                onClick = {
-                                    if (saveList()) {
-                                        isCreateDialogHasError = false
-                                        isCreateDialogShow = false
-                                    } else {
-                                        isCreateDialogHasError = true
-                                    }
-                                }) {
-                                Text(text = stringResource(id = R.string.save))
-                            }
-                        }
-
-                    }
-                }
-
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalFoundationApi::class)
-@Composable
-private fun TaskListContent(
-    listId: Int,
-    items: List<TaskEntity>,
-    navController: NavController,
-    onEvent: (TaskListEvent) -> Unit
-) {
-    LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 8.dp)
-    ) {
-        items(
-            items = items,
-            key = { task -> task.taskId!! }
-        ) { task ->
-            TaskItemContainer(
-                modifier = Modifier
-                    .animateItemPlacement()
-                    .clickable {
-                        navController.navigate(RouteNames.ADD_EDIT_SCREEN + "/listId=$listId?editedTask=${task.taskId}")
-                    }
-                    .height(IntrinsicSize.Max),
-                taskItem = task,
-                isDone = task.isTaskDone,
-                onDoneClick = { onEvent(TaskListEvent.OnDoneClick(task, it)) }
-            )
         }
     }
 }

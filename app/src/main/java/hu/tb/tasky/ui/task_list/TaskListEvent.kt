@@ -11,4 +11,6 @@ sealed class TaskListEvent{
     data class OnCreateNewListTextChange(val name: String): TaskListEvent()
     data class OnListDelete(val listEntity: ListEntity): TaskListEvent()
     data class ChangeActiveList(val listEntity: ListEntity): TaskListEvent()
+    object SaveList: TaskListEvent()
+    object ClearDialogState: TaskListEvent()
 }
