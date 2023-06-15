@@ -16,8 +16,8 @@ class DataStoreProtoRepository(
     suspend fun saveSort(order: Order, type: OrderType) {
         context.dataStore.updateData {
             it.copy(
-                sortBy = order,
-                sortTYPE = type
+                sortOrder = order,
+                sortType = type
             )
         }
     }

@@ -4,8 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class AppSettings(
-    val sortBy: Order = Order.TIME,
-    val sortTYPE: OrderType = OrderType.DESCENDING,
+    val sortOrder: Order = Order.TIME,
+    val sortType: OrderType = OrderType.DESCENDING,
     val isFirstTimeAppStart: Boolean = true,
 )
 
