@@ -33,7 +33,7 @@ class TaskReloadReceiver : BroadcastReceiver() {
             runBlocking {
                 launch {
                     dataStoreProto.appSettings.collect{
-                        taskEntityRepository.getOngoingTaskEntities(it.sortBy, it.sortTYPE).collect { onGoingTaskList ->
+                        taskEntityRepository.getOngoingTaskEntities(it.sortOrder, it.sortType).collect { onGoingTaskList ->
                             onGoingTaskList.forEach { task ->
                                 if (validator.execute(converter(task)) == ValidationResult.SUCCESS) {
                                     scheduler.schedule(task)

@@ -7,4 +7,9 @@ data class TaskListState(
     val listEntityWithTaskAllList: List<ListWithTask> = emptyList(),
     val newListName: String = "",
     val activeListEntity: ListEntity = ListEntity(1, "My list"),
+    val createNewListDialogHasError: CreateNewListDialogState = CreateNewListDialogState.START,
 )
+
+enum class CreateNewListDialogState{
+    ERROR, OK, IN_PROGRESS, START
+}

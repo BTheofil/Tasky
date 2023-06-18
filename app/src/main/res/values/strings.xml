@@ -13,7 +13,7 @@
     <string name="title">Title</string>
     <string name="description_optional">Description (Optional)</string>
     <string name="expire_time">Expire Time</string>
-    <string name="sort_name">Sort Title</string>
+    <string name="sort_title">Sort Title</string>
     <string name="sort_time">Sort Time</string>
     <string name="create_new_list">New list</string>
     <string name="new_list_name">New list name</string>

@@ -39,11 +39,12 @@ class TaskListViewModel @Inject constructor(
         viewModelScope.launch {
             dataStoreProto.appSettings.collect { appSettings ->
                 taskEntityRepository.getAllListsEntityWithTask(
-                    appSettings.sortBy,
-                    appSettings.sortTYPE
+                    appSettings.sortOrder,
+                    appSettings.sortType
                 ).collect { allListWithTask ->
                     _state.value = state.value.copy(
                         listEntityWithTaskAllList = allListWithTask,
+                        activeListEntity = allListWithTask[0].list
                     )
                 }
             }
@@ -64,7 +65,12 @@ class TaskListViewModel @Inject constructor(
                     scheduler.cancel(taskId.toInt())
                 }
             }
+
             is TaskListEvent.OnSortButtonClick -> {
+                viewModelScope.launch {
+                    dataStoreProto.saveSort(event.oder, event.orderType)
+                }
+
                 viewModelScope.launch {
                     taskEntityRepository.getAllListsEntityWithTask(event.oder, event.orderType)
                         .collect {
@@ -74,8 +80,10 @@ class TaskListViewModel @Inject constructor(
                         }
                 }
             }
+
             is TaskListEvent.OnCreateNewListTextChange -> _state.value =
                 state.value.copy(newListName = event.name)
+
             is TaskListEvent.OnListDelete -> {
                 viewModelScope.launch {
                     val listToRemove = state.value.listEntityWithTaskAllList
@@ -89,21 +97,35 @@ class TaskListViewModel @Inject constructor(
                     taskEntityRepository.deleteListEntity(event.listEntity.listId)
                 }
             }
+
             is TaskListEvent.ChangeActiveList -> _state.value =
                 state.value.copy(activeListEntity = event.listEntity)
-        }
-    }
 
-    fun isSaveListSuccess(): Boolean {
-        val titleResult = ValidateTitle().execute(_state.value.newListName)
+            is TaskListEvent.SaveList -> {
+                _state.value = state.value.copy(
+                    createNewListDialogHasError = CreateNewListDialogState.IN_PROGRESS
+                )
+                val titleResult = ValidateTitle().execute(_state.value.newListName)
 
-        if(titleResult == ValidationResult.ERROR){
-            return false
+                if (titleResult == ValidationResult.ERROR) {
+                    _state.value = state.value.copy(
+                        createNewListDialogHasError = CreateNewListDialogState.ERROR
+                    )
+                    return
+                }
+                viewModelScope.launch {
+                    taskEntityRepository.insertListEntity(ListEntity(name = _state.value.newListName))
+                    _state.value = state.value.copy(
+                        newListName = "",
+                        createNewListDialogHasError = CreateNewListDialogState.OK
+                    )
+                }
+            }
+
+            is TaskListEvent.ClearDialogState -> _state.value = state.value.copy(
+                createNewListDialogHasError = CreateNewListDialogState.START,
+                newListName = ""
+            )
         }
-        viewModelScope.launch {
-            taskEntityRepository.insertListEntity(ListEntity(name = _state.value.newListName))
-            _state.value = state.value.copy(newListName = "")
-        }
-        return true
     }
 }
