@@ -13,14 +13,20 @@ jobs:
     # Add steps to the job
     # See: https://circleci.com/docs/configuration-reference/#steps
     steps:
-      - checkout
-      - run:
-          name: "Say hello"
-          command: "echo Hello, World!"
+      unit-test:
+        executor:
+          name: android/android-docker
+          tag: 2022.08.1
+        steps:
+          - checkout
+          - android/restore-gradle-cache
+          - android/run-tests:
+              test-command: ./gradlew testDebug
+          - android/save-gradle-cache
 
 # Orchestrate jobs using workflows
 # See: https://circleci.com/docs/configuration-reference/#workflows
-workflows:
-  say-hello-workflow:
-    jobs:
-      - say-hello
+#workflows:
+#  say-hello-workflow:
+#    jobs:
+#      - say-hello
