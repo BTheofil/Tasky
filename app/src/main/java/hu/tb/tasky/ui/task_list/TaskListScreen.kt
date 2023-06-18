@@ -51,6 +51,12 @@ fun TaskListScreen(
         }
     }
 
+    LaunchedEffect(key1 = state.createNewListDialogHasError){
+        if (state.createNewListDialogHasError == CreateNewListDialogState.OK) {
+            isCreateDialogShow = false
+        }
+    }
+
     SortDropdownMenu(
         isVisible = isSortDropdownMenuVisible,
         onDismissRequest = { isSortDropdownMenuVisible = false },
@@ -67,12 +73,7 @@ fun TaskListScreen(
                 isCreateDialogShow = false
                 onEvent(TaskListEvent.ClearDialogState)
             },
-            onPositiveBtnClick = {
-                onEvent(TaskListEvent.SaveList)
-                if (!state.createNewListDialogHasError) {
-                    isCreateDialogShow = false
-                }
-            },
+            onPositiveBtnClick = { onEvent(TaskListEvent.SaveList) },
             onNegativeBtnClick = {
                 isCreateDialogShow = false
                 onEvent(TaskListEvent.ClearDialogState)

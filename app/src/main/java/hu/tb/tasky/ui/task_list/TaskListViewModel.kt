@@ -102,25 +102,28 @@ class TaskListViewModel @Inject constructor(
                 state.value.copy(activeListEntity = event.listEntity)
 
             is TaskListEvent.SaveList -> {
+                _state.value = state.value.copy(
+                    createNewListDialogHasError = CreateNewListDialogState.IN_PROGRESS
+                )
                 val titleResult = ValidateTitle().execute(_state.value.newListName)
 
                 if (titleResult == ValidationResult.ERROR) {
                     _state.value = state.value.copy(
-                        createNewListDialogHasError = true
+                        createNewListDialogHasError = CreateNewListDialogState.ERROR
                     )
                     return
                 }
                 viewModelScope.launch {
                     taskEntityRepository.insertListEntity(ListEntity(name = _state.value.newListName))
-                    _state.value = state.value.copy(newListName = "")
+                    _state.value = state.value.copy(
+                        newListName = "",
+                        createNewListDialogHasError = CreateNewListDialogState.OK
+                    )
                 }
-                _state.value = state.value.copy(
-                    createNewListDialogHasError = false
-                )
             }
 
             is TaskListEvent.ClearDialogState -> _state.value = state.value.copy(
-                createNewListDialogHasError = false,
+                createNewListDialogHasError = CreateNewListDialogState.START,
                 newListName = ""
             )
         }

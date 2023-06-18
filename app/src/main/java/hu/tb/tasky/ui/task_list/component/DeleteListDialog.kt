@@ -18,6 +18,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import hu.tb.tasky.R
+import hu.tb.tasky.ui.task_list.CreateNewListDialogState
 
 @Composable
 fun SurelyDeleteDialog(
@@ -26,7 +27,7 @@ fun SurelyDeleteDialog(
     onNegativeBtnClick: () -> Unit,
     valueText: String,
     onValueChange: (String) -> Unit,
-    isDialogError: Boolean,
+    isDialogError: CreateNewListDialogState,
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
         Card(
@@ -41,7 +42,7 @@ fun SurelyDeleteDialog(
                     onValueChange = onValueChange,
                     singleLine = true,
                     label = { Text(text = stringResource(R.string.new_list_name)) },
-                    isError = isDialogError
+                    isError = isDialogError == CreateNewListDialogState.ERROR
                 )
                 Row(
                     modifier = Modifier
