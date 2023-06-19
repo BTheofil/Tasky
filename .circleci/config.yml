@@ -1,4 +1,5 @@
 version: 2.1
+
 jobs:
   build:
     working_directory: ~/project
@@ -11,7 +12,7 @@ jobs:
 
       - run:
           name: Run Unit Tests
-          command: sudo chmod +x ./gradlew :app:testDebugUnitTest --tests "hu.tb.tasky.domain.use_case.ValidateDateTimeTest"
+          command: sudo chmod +x ./gradlew :app:testDebugUnitTest "hu.tb.tasky.domain.use_case.ValidateDateTimeTest"
 
 workflows:
   version: 2
