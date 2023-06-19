@@ -1,26 +1,27 @@
-version: '2.1'
-orbs:
-  android: circleci/android@2.0
+version: 2.1
 jobs:
-  test:
-    executor:
-      name: android/android-machine
-      resource-class: large
-      tag: 2021.10.1
+  build:
+    working_directory: ~/project
+
+    docker:
+      - image: circleci/android:api-30
+
+    environment:
+      JVM_OPTS: -Xmx3200m
+
     steps:
       - checkout
-      - android/create-avd:
-          avd-name: myavd
-          install: true
-          system-image: system-images;android-29;default;x86
-      - android/start-emulator:
-          avd-name: myavd
-          no-window: true
-          restore-gradle-cache-prefix: v1a
-      - android/run-tests
-      - android/save-gradle-cache:
-          cache-prefix: v1a
+
+      - run:
+          name: Download Dependencies
+          command: ./gradlew androidDependencies
+
+      - run:
+          name: Run Unit Tests
+          command: ./gradlew test
+
 workflows:
-  test:
+  version: 2
+  build-and-test:
     jobs:
-      - test
+      - build
