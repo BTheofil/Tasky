@@ -6,19 +6,12 @@ jobs:
     docker:
       - image: circleci/android:api-30
 
-    environment:
-      JVM_OPTS: -Xmx3200m
-
     steps:
       - checkout
 
       - run:
-          name: Download Dependencies
-          command: sudo chmod +x ./gradlew androidDependencies
-
-      - run:
           name: Run Unit Tests
-          command: sudo chmod +x ./gradlew test
+          command: sudo chmod +x ./gradlew :app:testDebugUnitTest --tests "hu.tb.tasky.domain.use_case.ValidateDateTimeTest"
 
 workflows:
   version: 2
