@@ -14,11 +14,11 @@ jobs:
 
       - run:
           name: Download Dependencies
-          command: ./gradlew androidDependencies
+          command: sudo chmod +x ./gradlew androidDependencies
 
       - run:
           name: Run Unit Tests
-          command: ./gradlew test
+          command: sudo chmod +x ./gradlew test
 
 workflows:
   version: 2
