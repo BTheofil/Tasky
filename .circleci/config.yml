@@ -5,7 +5,7 @@ jobs:
     working_directory: ~/project
 
     docker:
-      - image: cimg/android:api-30
+      - image: circleci/android:api-30
 
     steps:
       - checkout
