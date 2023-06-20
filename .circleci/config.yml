@@ -4,7 +4,9 @@ jobs:
     working_directory: ~/project
 
     docker:
-      - image: openjdk:17
+      - image: circleci/android:api-25-alpha
+    environment:
+        JVM_OPTS: -Xmx3200m
 
     steps:
       - checkout
