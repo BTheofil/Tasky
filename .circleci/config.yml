@@ -12,7 +12,7 @@ jobs:
 
       - run:
           name: Run Unit Tests
-          command: sudo chmod +x ./gradlew testDebugUnitTest
+          command: chmod +x ./gradlew test
 
 workflows:
   version: 2
