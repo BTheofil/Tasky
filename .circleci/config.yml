@@ -1,15 +1,35 @@
 version: 2.1
-orbs:
-  android: circleci/android@2.3.0
-
 jobs:
   build:
-    executor: android/android
+    working_directory: ~/project
+
+    docker:
+      - image: openjdk:17
+
     steps:
       - checkout
 
-      # Setup Android SDK
-      - android/setup
+      # Install Android SDK
+      - run:
+          name: Install Android SDK
+          command: |
+            apt-get update
+            apt-get install -y wget unzip
+            wget https://dl.google.com/android/repository/commandlinetools-linux-6858069_latest.zip
+            unzip commandlinetools-linux-6858069_latest.zip -d android-sdk
+            export ANDROID_SDK_ROOT=$PWD/android-sdk
+            yes | $ANDROID_SDK_ROOT/cmdline-tools/bin/sdkmanager --licenses
+            $ANDROID_SDK_ROOT/cmdline-tools/bin/sdkmanager "platforms;android-30" "build-tools;30.0.3"
+
+      # Configure environment variables
+      - run:
+          name: Configure Environment Variables
+          command: echo 'export PATH=$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH' >> $BASH_ENV
+
+      # Grant execute permissions to gradlew
+      - run:
+          name: Grant Execute Permissions to gradlew
+          command: chmod +x gradlew
 
       # Build and run unit tests
       - run:
