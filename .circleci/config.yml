@@ -12,7 +12,10 @@ jobs:
       # Configure environment variables
       - run:
           name: Configure Environment Variables
-          command: echo 'export PATH=$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH' >> $BASH_ENV
+          command: |
+            echo 'export ANDROID_HOME=/path/to/android-sdk' >> $BASH_ENV
+            echo 'export PATH=$ANDROID_SDK_ROOT/platform-tools:$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$PATH' >> $BASH_ENV
+      
 
       # Grant execute permissions to gradlew
       - run:
