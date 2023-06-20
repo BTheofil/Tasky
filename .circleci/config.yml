@@ -4,7 +4,7 @@ jobs:
     working_directory: ~/project
 
     docker:
-      - image: adoptopenjdk/openjdk17
+      - image: openjdk:17
 
     steps:
       - checkout
