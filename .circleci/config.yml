@@ -1,5 +1,4 @@
 version: 2.1
-
 jobs:
   build:
     working_directory: ~/project
@@ -7,21 +6,28 @@ jobs:
     docker:
       - image: circleci/android:api-30
 
+    environment:
+      JVM_OPTS: -Dorg.gradle.java.home=/usr/local/openjdk-17
+
     steps:
       - checkout
 
+      # Setup Android SDK
       - run:
           name: Setup Android SDK
           command: sdkmanager --update
 
+      # Configure environment variables
       - run:
           name: Configure Environment Variables
           command: echo 'export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH' >> $BASH_ENV
 
+      # Grant execute permissions to gradlew
       - run:
           name: Grant Execute Permissions to gradlew
           command: chmod +x gradlew
 
+      # Build and run unit tests
       - run:
-          name: Run Unit Tests
+          name: Build and Run Unit Tests
           command: ./gradlew test
