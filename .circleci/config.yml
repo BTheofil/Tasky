@@ -4,10 +4,7 @@ jobs:
     working_directory: ~/project
 
     docker:
-      - image: circleci/android:api-30
-
-    environment:
-      JVM_OPTS: -Dorg.gradle.java.home=/usr/local/openjdk-17
+      - image: circleci/openjdk:17
 
     steps:
       - checkout
