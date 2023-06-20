@@ -1,28 +1,15 @@
 version: 2.1
+orbs:
+  android: circleci/android@3.0.0
+
 jobs:
   build:
-    working_directory: ~/project
-
-    docker:
-      - image: openjdk:17
-
+    executor: android/android
     steps:
       - checkout
 
       # Setup Android SDK
-      - run:
-          name: Setup Android SDK
-          command: sdkmanager --update
-
-      # Configure environment variables
-      - run:
-          name: Configure Environment Variables
-          command: echo 'export PATH=$ANDROID_HOME/platform-tools:$ANDROID_HOME/emulator:$PATH' >> $BASH_ENV
-
-      # Grant execute permissions to gradlew
-      - run:
-          name: Grant Execute Permissions to gradlew
-          command: chmod +x gradlew
+      - android/setup
 
       # Build and run unit tests
       - run:
