@@ -11,6 +11,10 @@ jobs:
       - checkout
 
       - run:
+          name: Grant Execute Permissions to gradlew
+          command: chmod +x gradlew
+
+      - run:
           name: Run Unit Tests
           command: ./gradlew test
 
