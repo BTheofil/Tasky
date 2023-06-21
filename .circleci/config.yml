@@ -10,3 +10,4 @@ jobs:
             command: chmod +x gradlew
       - run: ./gradlew androidDependencies
       - run: ./gradlew lint test
+      - run: ./gradlew test
