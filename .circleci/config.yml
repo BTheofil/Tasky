@@ -5,5 +5,8 @@ jobs:
       - image: cimg/android:2023.06
     steps:
       - checkout
+      - run:
+            name: Grant Execute Permissions to gradlew
+            command: chmod +x gradlew
       - run: ./gradlew androidDependencies
-      - run: ./gradlew test
+      - run: ./gradlew lint test
